@@ -30,7 +30,7 @@ jobs:
           source: "test/test_dotenv"
           target: ".env"
       - name: Run tests with pytest under coverage
-        run: coverage run --omit settings.py -m pytest
+        run: coverage run --omit gw_spaceheat/settings.py -m pytest
       - name: Upload coverage data
         uses: "actions/upload-artifact@v3"
         with:
