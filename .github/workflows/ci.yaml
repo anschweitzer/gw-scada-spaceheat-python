@@ -31,9 +31,9 @@ jobs:
           target: ".env"
       - name: Run tests with pytest under coverage
         run: |
-          ls -a1 | grep ".coverage"
+          ls -a1
           coverage run -m pytest
-          ls -a1 | grep ".coverage"
+          ls -a1
       - name: Upload coverage data
         uses: "actions/upload-artifact@v3"
         with:
