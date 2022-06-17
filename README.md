@@ -1,7 +1,7 @@
 # GridWorks SpaceHeat SCADA
 
-[![Tests](https://github.com/anschweitzer/whenwasi/workflows/Tests/badge.svg)][tests]
-[![Codecov](https://codecov.io/gh/anschweitzer/whenwasi/branch/main/graph/badge.svg)][codecov]
+[![Tests](https://github.com/anschweitzer/gw-scada-spaceheat-python/workflows/Tests/badge.svg)][tests]
+[![Codecov](https://codecov.io/gh/anschweitzer/gw-scada-spaceheat-python/branch/ci-experiments2/graph/badge.svg)][codecov]
 
 [tests]: https://github.com/anschweitzer/whenwasi/actions?workflow=Tests
 [codecov]: https://app.codecov.io/gh/anschweitzer/whenwasi
