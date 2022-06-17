@@ -29,8 +29,13 @@ jobs:
         with:
           source: "test/test_dotenv"
           target: ".env"
-      - name: Run tests with pytest
-        run: pytest
+      - name: Run tests with pytest under coverage
+        run: coverage run -m pytest
+      - name: Upload coverage data
+        uses: "actions/upload-artifact@v3"
+        with:
+          name: coverage-data
+          path: ".coverage.*"
 
   coverage:
     name: Combine & check coverage.
@@ -60,3 +65,6 @@ jobs:
         with:
           name: html-report
           path: htmlcov
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3.1.0
