@@ -30,12 +30,20 @@ jobs:
           source: "test/test_dotenv"
           target: ".env"
       - name: Run tests with pytest under coverage
-        run: coverage run -m pytest
+        run: |
+          ls -a1 | grep ".coverage"
+          coverage run -m pytest
+          ls -a1 | grep ".coverage"
       - name: Upload coverage data
         uses: "actions/upload-artifact@v3"
         with:
           name: coverage-data
           path: ".coverage.*"
+      - name: Upload coverage data2
+        uses: "actions/upload-artifact@v3"
+        with:
+          name: coverage-data
+          path: ".coverage*"
 
   coverage:
     name: Combine & check coverage.
