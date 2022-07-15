@@ -4,6 +4,7 @@ import load_house
 from actors.boolean_actuator import BooleanActuator
 from actors.power_meter import PowerMeter
 from actors.simple_sensor import SimpleSensor
+from config import ScadaSettings
 from data_classes.sh_node import ShNode
 from schema.gt.gt_dispatch_boolean.gt_dispatch_boolean_maker import GtDispatchBoolean_Maker
 from test.utils import ScadaRecorder, AtnRecorder, HomeAloneRecorder, EarRecorder, wait_for
@@ -14,7 +15,8 @@ def test_message_exchange(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     debug_logs_path = tmp_path / "output/debug_logs"
     debug_logs_path.mkdir(parents=True, exist_ok=True)
-    load_house.load_all()
+    settings = ScadaSettings()
+    load_house.load_all(settings.world_root_alias)
     scada = ScadaRecorder(node=ShNode.by_alias["a.s"], logging_on=True)
     atn = AtnRecorder(node=ShNode.by_alias["a"], logging_on=True)
     ear = EarRecorder(logging_on=True)

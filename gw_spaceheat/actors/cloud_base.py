@@ -94,10 +94,6 @@ class CloudBase(ABC):
             list(map(lambda x: (f"{x.Topic}", x.Qos.value), self.gw_subscriptions()))
         )
 
-    @classmethod
-    def load_sh_nodes(cls):
-        load_house.load_all()
-
     def mqtt_log_hack(self, row):
         if self.logging_on:
             with open(self.log_csv, "a") as outfile:

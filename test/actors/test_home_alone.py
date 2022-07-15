@@ -4,13 +4,15 @@ import pytest
 from actors.home_alone import HomeAlone
 
 import load_house
+from config import ScadaSettings
 from data_classes.sh_node import ShNode
 
 from schema.gt.gt_sh_status.gt_sh_status_maker import GtShStatus_Maker
 
 
 def test_homealone_small():
-    load_house.load_all()
+    settings = ScadaSettings()
+    load_house.load_all(settings.world_root_alias)
     with pytest.raises(Exception):
         home_alone = HomeAlone(node=ShNode.by_alias["a"])
     home_alone = HomeAlone(node=ShNode.by_alias["a.home"])

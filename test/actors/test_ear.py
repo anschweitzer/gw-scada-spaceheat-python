@@ -4,6 +4,7 @@ import time
 
 import load_house
 from actors.simple_sensor import SimpleSensor
+from config import ScadaSettings
 from data_classes.sh_node import ShNode
 from schema import property_format
 from schema.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
@@ -17,7 +18,8 @@ from test.utils import wait_for, ScadaRecorder, EarRecorder
 
 def test_scada_ear_connection():
     logging_on = False
-    load_house.load_all()
+    settings = ScadaSettings()
+    load_house.load_all(settings.world_root_alias)
     scada = ScadaRecorder(node=ShNode.by_alias["a.s"], logging_on=logging_on)
     ear = EarRecorder(logging_on=logging_on)
     thermo0_node = ShNode.by_alias["a.tank.temp0"]
