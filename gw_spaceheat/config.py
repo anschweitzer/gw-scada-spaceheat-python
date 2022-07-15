@@ -5,6 +5,7 @@ from pydantic import BaseModel, BaseSettings, SecretStr
 
 DEFAULT_ENV_FILE = ".env"
 
+
 class MQTTClient(BaseModel):
     """Settings for connecting to an MQTT Broker"""
     host: str = "localhost"
@@ -14,6 +15,7 @@ class MQTTClient(BaseModel):
     bind_port: int = 0
     username: Optional[str] = None
     password: SecretStr = SecretStr("")
+
 
 class ScadaSettings(BaseSettings):
     """Settings for the GridWorks scada."""

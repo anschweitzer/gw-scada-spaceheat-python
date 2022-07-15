@@ -10,6 +10,7 @@ from pydantic import SecretStr
 
 from config import MQTTClient, ScadaSettings
 
+
 def test_mqtt_client_settings():
     """Test MQTTClient"""
     password = "d"
@@ -68,7 +69,7 @@ def test_scada_settings_from_env(monkeypatch):
         SCADA_LOCAL_MQTT__HOST="foo",
         SCADA_LOCAL_MQTT__PASSWORD="a",
         SCADA_GRIDWORKS_MQTT__HOST="b",
-        SCADA_GRIDWORKS_MQTT__PASSWORD= "c",
+        SCADA_GRIDWORKS_MQTT__PASSWORD="c",
     )
     for k, v in exp.items():
         monkeypatch.setenv(k, v)

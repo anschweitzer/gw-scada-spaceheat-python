@@ -53,6 +53,3 @@ def clean_scada_env(request) -> Generator[MonkeyPatch, None, None]:
         prefix=param[1] if len(param) > 1 else "SCADA_"
     ).context() as mpatch:
         yield mpatch
-
-
-
