@@ -34,8 +34,8 @@ def test_scada_small():
     settings = ScadaSettings()
     load_house.load_all(settings.world_root_alias)
     with pytest.raises(Exception):
-        scada = Scada(node=ShNode.by_alias["a"])
-    scada = Scada(node=ShNode.by_alias["a.s"])
+        Scada(node=ShNode.by_alias["a"], settings=settings)
+    scada = Scada(node=ShNode.by_alias["a.s"], settings=settings)
     meter_node = ShNode.by_alias["a.m"]
     relay_node = ShNode.by_alias["a.elt1.relay"]
     temp_node = ShNode.by_alias["a.tank.temp0"]

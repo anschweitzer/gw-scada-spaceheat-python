@@ -58,9 +58,9 @@ def test_power_meter_small():
 
     # Raise exception if initiating node is anything except the unique power meter node
     with pytest.raises(Exception):
-        meter = PowerMeter(node=ShNode.by_alias["a.s"])
+        PowerMeter(node=ShNode.by_alias["a.s"], settings=settings)
 
-    meter = PowerMeter(node=ShNode.by_alias["a.m"])
+    meter = PowerMeter(node=ShNode.by_alias["a.m"], settings=settings)
 
     assert set(meter.nameplate_telemetry_value.keys()) == set(
         meter.all_power_meter_telemetry_tuples()

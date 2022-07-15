@@ -17,13 +17,12 @@ from test.utils import wait_for, ScadaRecorder, EarRecorder
 
 
 def test_scada_ear_connection():
-    logging_on = False
     settings = ScadaSettings()
     load_house.load_all(settings.world_root_alias)
-    scada = ScadaRecorder(node=ShNode.by_alias["a.s"], logging_on=logging_on)
-    ear = EarRecorder(logging_on=logging_on)
+    scada = ScadaRecorder(node=ShNode.by_alias["a.s"], settings=settings)
+    ear = EarRecorder(settings=settings)
     thermo0_node = ShNode.by_alias["a.tank.temp0"]
-    thermo0 = SimpleSensor(node=thermo0_node, logging_on=logging_on)
+    thermo0 = SimpleSensor(node=thermo0_node, settings=settings)
     try:
 
         scada.start()

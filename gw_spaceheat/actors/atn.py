@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 
 from actors.cloud_base import CloudBase
 from actors.utils import QOS, Subscription, responsive_sleep
+from config import ScadaSettings
 from data_classes.components.boolean_actuator_component import BooleanActuatorComponent
 from data_classes.sh_node import ShNode
 from schema.enums.role.role_map import Role
@@ -34,8 +35,8 @@ class Atn(CloudBase):
             )
         )
 
-    def __init__(self, node: ShNode, logging_on=False):
-        super(Atn, self).__init__(logging_on=logging_on)
+    def __init__(self, node: ShNode, settings: ScadaSettings):
+        super(Atn, self).__init__(settings=settings)
         self.node = node
         self.latest_power_w: Dict[ShNode, Optional[int]] = {}
         self.power_nodes = list(

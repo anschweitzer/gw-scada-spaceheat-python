@@ -42,7 +42,7 @@ def setup_logging(args: argparse.Namespace) -> None:
     logging.basicConfig(level=level, format=LOGGING_FORMAT)
 
 
-def run_nodes(aliases: Sequence[str], logging_on: bool = False, dbg: Optional[Dict] = None) -> None:
+def run_nodes(aliases: Sequence[str], settings: ScadaSettings, dbg: Optional[Dict] = None) -> None:
     """Start actors associated with node aliases. If dbg is not None, the actor instances will be returned in dbg["actors"]
     as dict of alias:actor."""
 
@@ -55,7 +55,7 @@ def run_nodes(aliases: Sequence[str], logging_on: bool = False, dbg: Optional[Di
             raise ValueError(f"ERROR. Node alias [{alias}] has no strategy")
         actor_constructors.append((node, actor_function))
 
-    actors = [constructor(node, logging_on=logging_on) for node, constructor in actor_constructors]
+    actors = [constructor(node, settings) for node, constructor in actor_constructors]
 
     for actor in actors:
         actor.start()
@@ -73,4 +73,4 @@ def run_nodes_main(
     setup_logging(args)
     settings = ScadaSettings(_env_file=dotenv.find_dotenv(args.env_file))
     load_house.load_all(settings.world_root_alias)
-    run_nodes(args.nodes, logging_on=bool(args.log), dbg=dbg)
+    run_nodes(args.nodes, settings, dbg=dbg)

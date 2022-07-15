@@ -17,13 +17,13 @@ def test_message_exchange(tmp_path, monkeypatch):
     debug_logs_path.mkdir(parents=True, exist_ok=True)
     settings = ScadaSettings()
     load_house.load_all(settings.world_root_alias)
-    scada = ScadaRecorder(node=ShNode.by_alias["a.s"], logging_on=True)
-    atn = AtnRecorder(node=ShNode.by_alias["a"], logging_on=True)
-    ear = EarRecorder(logging_on=True)
-    home_alone = HomeAloneRecorder(node=ShNode.by_alias["a.home"], logging_on=True)
-    elt_relay = BooleanActuator(ShNode.by_alias["a.elt1.relay"], logging_on=True)
-    meter = PowerMeter(node=ShNode.by_alias["a.m"], logging_on=True)
-    thermo = SimpleSensor(node=ShNode.by_alias["a.tank.temp0"], logging_on=True)
+    scada = ScadaRecorder(node=ShNode.by_alias["a.s"], settings=settings)
+    atn = AtnRecorder(node=ShNode.by_alias["a"], settings=settings)
+    ear = EarRecorder(settings=settings)
+    home_alone = HomeAloneRecorder(node=ShNode.by_alias["a.home"], settings=settings)
+    elt_relay = BooleanActuator(ShNode.by_alias["a.elt1.relay"], settings=settings)
+    meter = PowerMeter(node=ShNode.by_alias["a.m"], settings=settings)
+    thermo = SimpleSensor(node=ShNode.by_alias["a.tank.temp0"], settings=settings)
     actors = [scada, atn, ear, home_alone, elt_relay, meter, thermo]
 
     try:

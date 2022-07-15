@@ -40,6 +40,7 @@ def test_scada_settings_defaults(clean_scada_env):
         local_mqtt=MQTTClient().dict(),
         gridworks_mqtt=MQTTClient().dict(),
         seconds_per_report=300,
+        logging_on=False,
     )
     assert settings.world_root_alias == "foo"
     assert settings.dict() == exp
