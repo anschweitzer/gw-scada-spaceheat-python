@@ -16,6 +16,7 @@ LOGGING_FORMAT = "%(asctime)s %(message)s"
 def parse_args(
     argv: Optional[Sequence[str]] = None,
     default_nodes: Optional[Sequence[str]] = None,
+    args: Optional[argparse.Namespace] = None,
 ) -> argparse.Namespace:
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -30,7 +31,7 @@ def parse_args(
     parser.add_argument(
         "-n", "--nodes", default=default_nodes or [], nargs="*", help="ShNode aliases to load."
     )
-    return parser.parse_args(argv or sys.argv[1:])
+    return parser.parse_args(sys.argv[1:] if argv is None else argv, namespace=args)
 
 
 def setup_logging(args: argparse.Namespace, settings: ScadaSettings) -> None:

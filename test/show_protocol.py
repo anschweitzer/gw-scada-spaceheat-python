@@ -1,12 +1,17 @@
 """Sample driver script showing message in/out summary lines for a portion of the mqtt protocol."""
-
+import argparse
 import sys
-from typing import Optional, List
+import time
+from typing import Optional, List, Tuple
 
 import dotenv
 
 import load_house
+from actors.actor_base import ActorBase
+from actors.atn import Atn
 from actors.boolean_actuator import BooleanActuator
+from actors.cloud_base import CloudBase
+from actors.cloud_ear import CloudEar
 from actors.power_meter import PowerMeter
 from actors.simple_sensor import SimpleSensor
 from command_line_utils import parse_args, setup_logging
@@ -14,14 +19,45 @@ from config import ScadaSettings
 from data_classes.sh_node import ShNode
 from utils import ScadaRecorder, AtnRecorder, HomeAloneRecorder, wait_for
 
+def do_nothing(seconds: float):
+    """Let the actors run on their own for a while"""
+    if seconds > 0:
+        print()
+        print(
+            f"## DOING NOTHING FOR {int(seconds):4d} SECONDS "
+            f"####################################################################"
+        )
+        time.sleep(seconds)
+        print("## DONE DOING NOTHING #################################################################################")
+
+# noinspection PyUnusedLocal
+def i_am_quiet(self, note: str):
+    """Replaces screen_print with silence"""
+    pass
+
+
+def please_be_quiet():
+    """Monkey patch screen_print() to do nothing."""
+    ActorBase.screen_print = i_am_quiet
+    Atn.screen_print = i_am_quiet
+    CloudEar.screen_print = i_am_quiet
+
+
+def parse_show_protocol_args(argv: Optional[List[str]] = None) -> Tuple[argparse.Namespace, List[str]]:
+    """Add show_protocol only args"""
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--do-nothing-time", default=0, help="Length of delays between steps, if any.", type=float)
+    return parser.parse_known_args(argv or sys.argv[1:])
 
 def show_protocol(argv: Optional[List[str]] = None):
+    """Run protocol fragments, showing their result on screen"""
     if argv is None:
         argv = sys.argv[1:]
-    args = parse_args(argv)
+    args, argv = parse_show_protocol_args(argv)
+    args = parse_args(argv, args=args)
     settings = ScadaSettings(_env_file=dotenv.find_dotenv(args.env_file), log_message_summary=True)
     setup_logging(args, settings)
-
+    please_be_quiet()
     load_house.load_all(settings.world_root_alias)
     scada = ScadaRecorder(node=ShNode.by_alias["a.s"], settings=settings)
     atn = AtnRecorder(node=ShNode.by_alias["a"], settings=settings)
@@ -52,11 +88,15 @@ def show_protocol(argv: Optional[List[str]] = None):
         print("## CONNECTED ##########################################################################################")
         scada._scada_atn_fast_dispatch_contract_is_alive_stub = True
 
+        do_nothing(args.do_nothing_time)
+
         print()
         print("## TURNING ON #########################################################################################")
         atn.turn_on(ShNode.by_alias["a.elt1.relay"])
         wait_for(lambda: elt_relay.relay_state == 1, 10, f"Relay state {elt_relay.relay_state}")
         print("## TURNED ON ##########################################################################################")
+
+        do_nothing(args.do_nothing_time)
 
         print()
         print("## REQUESTING STATUS ##################################################################################")
@@ -82,13 +122,7 @@ def show_protocol(argv: Optional[List[str]] = None):
         )
         print("## SCADA GOT STATUS ###################################################################################")
 
-        print()
-        print("## TURNING OFF ########################################################################################")
-        atn.turn_off(ShNode.by_alias["a.elt1.relay"])
-        wait_for(
-            lambda: int(elt_relay.relay_state) == 0, 10, f"Relay state {elt_relay.relay_state}"
-        )
-        print("## TURNED OFF #########################################################################################")
+        do_nothing(args.do_nothing_time)
 
         print()
         print("## SCADA SENDING STATUS ###############################################################################")
