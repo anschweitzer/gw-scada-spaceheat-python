@@ -1,12 +1,16 @@
 """Test PowerMeter actor"""
+import typing
 
 import load_house
 import pytest
 from actors.power_meter import PowerMeter
+from actors.scada import Scada
 from config import ScadaSettings
+from data_classes.components.electric_meter_component import ElectricMeterComponent
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
 from schema.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
+from test.utils import wait_for
 
 
 # Refactor this test once we have a simulated relay that can be dispatched with
@@ -154,3 +158,61 @@ def test_power_meter_small():
     assert meter.should_report_aggregated_power()
     meter.report_aggregated_power_w()
     assert meter.latest_agg_power_w == 500
+
+def test_power_meter_periodic_update(monkeypatch):
+    """Verify the PowerMeter sends its periodic GtShTelemetryFromMultipurposeSensor message (GsPwr sending is
+    _not_ tested here."""
+    settings = ScadaSettings(log_message_summary=True, seconds_per_report=1)
+    load_house.load_all(settings.world_root_alias)
+    scada = Scada(ShNode.by_alias["a.s"], settings=settings)
+    meter_node = ShNode.by_alias["a.m"]
+    typing.cast(ElectricMeterComponent, meter_node.component).cac.update_period_ms = 0
+    monkeypatch.setattr(typing.cast(ElectricMeterComponent, meter_node.component).cac, "update_period_ms", 0)
+    meter = PowerMeter(node=meter_node, settings=settings)
+    meter.reporting_sample_period_s = 0
+    actors = [scada, meter]
+    expected_tts = [
+        TelemetryTuple(
+            AboutNode=ShNode.by_alias["a.elt1"],
+            SensorNode=meter.node,
+            TelemetryName=TelemetryName.CURRENT_RMS_MICRO_AMPS,
+        ),
+        TelemetryTuple(
+            AboutNode=ShNode.by_alias["a.elt1"],
+            SensorNode=meter.node,
+            TelemetryName=TelemetryName.POWER_W,
+        )
+    ]
+    try:
+        # Wait for startup and connection
+        for actor in actors:
+            actor.start()
+        for actor in actors:
+            wait_for(actor.client.is_connected, 10, f"{actor.node.alias} is_connected")
+
+        # Wait for at least one reading to be delivered since one is delivered on thread startup.
+        for tt in expected_tts:
+            wait_for(
+                lambda: len(scada.recent_values_from_multipurpose_sensor[tt]) > 0,
+                2,
+                f"wait for PowerMeter first periodic report, [{tt.TelemetryName}]"
+            )
+
+        # Verify pediodic delivery.
+        received_tt_counts = [
+            len(scada.recent_values_from_multipurpose_sensor[tt]) for tt in expected_tts
+        ]
+        print(received_tt_counts)
+        for received_count, tt in zip(received_tt_counts, expected_tts):
+            wait_for(
+                lambda: len(scada.recent_values_from_multipurpose_sensor[tt]) > received_count,
+                2,
+                f"wait for PowerMeter periodic update [{tt.TelemetryName}]"
+            )
+    finally:
+        for actor in actors:
+            # noinspection PyBroadException
+            try:
+                actor.stop()
+            except:
+                pass

@@ -11,6 +11,7 @@ from test.utils import wait_for
 
 
 def test_simple_sensor_periodic_update(monkeypatch):
+    """Verify that SimpleSensor sends its periodic GtTelemetry message."""
     settings = ScadaSettings()
     load_house.load_all(settings.world_root_alias)
     scada = Scada(ShNode.by_alias["a.s"], settings=settings)
