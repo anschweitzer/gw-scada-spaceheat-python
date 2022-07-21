@@ -12,14 +12,11 @@ from data_classes.sh_node import ShNode
 
 LOGGING_FORMAT = "%(asctime)s %(message)s"
 
-
-def parse_args(
-    argv: Optional[Sequence[str]] = None,
-    default_nodes: Optional[Sequence[str]] = None,
-    args: Optional[argparse.Namespace] = None,
-) -> argparse.Namespace:
-    """Parse command line arguments"""
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+def add_default_args(
+    parser: argparse.ArgumentParser,
+    default_nodes: Optional[Sequence[str]] = None
+) -> argparse.ArgumentParser:
+    """Add default arguments to a command line parser"""
     parser.add_argument(
         "-e", "--env-file", default=".env",
         help=(
@@ -31,8 +28,19 @@ def parse_args(
     parser.add_argument(
         "-n", "--nodes", default=default_nodes or [], nargs="*", help="ShNode aliases to load."
     )
-    return parser.parse_args(sys.argv[1:] if argv is None else argv, namespace=args)
+    return parser
 
+def parse_args(
+    argv: Optional[Sequence[str]] = None,
+    default_nodes: Optional[Sequence[str]] = None,
+    args: Optional[argparse.Namespace] = None,
+    parser: Optional[argparse.ArgumentParser] = None
+) -> argparse.Namespace:
+    """Parse command line arguments"""
+    return add_default_args(
+        parser or argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter),
+        default_nodes=default_nodes,
+    ).parse_args(sys.argv[1:] if argv is None else argv, namespace=args)
 
 def setup_logging(args: argparse.Namespace, settings: ScadaSettings) -> None:
     """Setup python logging based on parsed command line args"""
