@@ -1,11 +1,12 @@
 """Test Scada actor"""
-
+import argparse
 import time
 import typing
 
 import pytest
 
 import load_house
+from actors.actor_base import ActorBase
 from actors.scada import Scada, ScadaCmdDiagnostic
 from config import ScadaSettings
 from data_classes.sh_node import ShNode
@@ -28,6 +29,8 @@ from schema.gt.gt_telemetry.gt_telemetry_maker import GtTelemetry_Maker
 from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local_maker import (
     GtDispatchBooleanLocal_Maker,
 )
+from test.show_protocol import FragmentRunner, ProtocolFragment
+from test.utils import wait_for
 
 
 def test_scada_small():
@@ -212,3 +215,38 @@ def test_scada_small():
 
     scada._last_5_cron_s = int(time.time() - 400)
     assert scada.time_for_5_cron() is True
+
+
+def test_scada_periodic_status_delivery():
+    """Verify Scada sends GtShStatus message to Atn periodically and that its contents contain data
+    Scada previously from sensors.
+    """
+
+    class ScadaEmptyStatusFragment(ProtocolFragment):
+
+        def __init__(self, runner_: FragmentRunner):
+            runner_.actors.scada._last_5_cron_s = int(time.time())
+            super().__init__(runner_)
+
+        def get_requested_actors(self) -> typing.Sequence[ActorBase]:
+            return [self.runner.actors.scada, self.runner.actors.atn]
+
+        def run(self):
+            scada = self.runner.actors.scada
+            atn = self.runner.actors.atn
+            status_topic = f"{scada.scada_g_node_alias}/gt.sh.status.110"
+            assert atn.num_received_by_topic[status_topic] == 0
+            # noinspection PyProtectedMember
+            scada._last_5_cron_s -= 299
+            wait_for(
+                lambda: atn.num_received_by_topic[status_topic] == 1,
+                10,
+                "Atn wait for status message"
+            )
+
+    settings = ScadaSettings(log_message_summary=True)
+    load_house.load_all(settings.world_root_alias)
+    runner = FragmentRunner(argparse.Namespace(wait_at_least=0, fragments=[], do_nothing_time=0), settings)
+    runner.add_fragment(ScadaEmptyStatusFragment(runner))
+    runner.run()
+

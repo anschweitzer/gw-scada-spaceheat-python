@@ -19,7 +19,7 @@ from command_line_utils import add_default_args, setup_logging
 from config import ScadaSettings
 from data_classes.sh_node import ShNode
 from drivers.power_meter.gridworks_sim_pm1__power_meter_driver import GridworksSimPm1_PowerMeterDriver
-from utils import ScadaRecorder, AtnRecorder, HomeAloneRecorder, wait_for
+from test.utils import ScadaRecorder, AtnRecorder, HomeAloneRecorder, wait_for
 
 # noinspection PyUnusedLocal
 def i_am_quiet(self, note: str):
@@ -90,19 +90,21 @@ class FragmentRunner:
     fragments: List["ProtocolFragment"]
     wait_at_least: float
 
-    def __init__(self, args:argparse.Namespace, settings:ScadaSettings, actors:Actors):
+    def __init__(self, args:argparse.Namespace, settings:ScadaSettings, actors:Optional[Actors] = None):
         self.args = args
         self.settings = settings
-        self.actors = actors
+        self.actors = Actors(settings) if actors is None else actors
         self.requested = dict()
         self.fragments = []
         self.wait_at_least = args.wait_at_least
-        if not self.args.fragments:
-            self.args.fragments = ["all"]
         for fragment in [self.fragment_from_enum(FragmentNames(name)) for name in self.args.fragments]:
-            self.fragments.append(fragment)
-            self.wait_at_least = max(self.wait_at_least, fragment.wait_at_least)
-            self.request(fragment.get_requested_actors(self.actors))
+            self.add_fragment(fragment)
+
+    def add_fragment(self, fragment: "ProtocolFragment") -> "FragmentRunner":
+        self.fragments.append(fragment)
+        self.wait_at_least = max(self.wait_at_least, fragment.wait_at_least)
+        self.request_actor(fragment.get_requested_actors())
+        return self
 
     def fragment_from_enum(self, name: FragmentNames) -> "ProtocolFragment":
         if name == FragmentNames.all:
@@ -117,10 +119,11 @@ class FragmentRunner:
             raise ValueError(f"Unknown fragment name {name}")
         return fragment
 
-    def request(self, actors: Sequence[ActorBase]):
+    def request_actor(self, actors: Sequence[ActorBase]) -> "FragmentRunner":
         for actor in actors:
             if actor.node.alias not in self.requested:
                 self.requested[actor.node.alias] = actor
+        return self
 
     def start(self):
         for actor in self.requested.values():
@@ -149,7 +152,7 @@ class FragmentRunner:
             except:
                 pass
 
-    def run(self):
+    def run(self, *args, **kwargs):
         try:
             start_time = time.time()
             delimit("STARTING")
@@ -157,26 +160,24 @@ class FragmentRunner:
             self.wait_connect()
             delimit("CONNECTED")
             for fragment in self.fragments:
-                fragment.run(self.actors)
+                fragment.run(*args, **kwargs)
             if (time_left := self.wait_at_least - (time.time() - start_time)) > 0:
                 do_nothing(time_left)
         finally:
             self.stop()
 
 class ProtocolFragment:
-    args: argparse.Namespace
-    settings: ScadaSettings
+    runner: FragmentRunner
     wait_at_least: float
 
     def __init__(self, runner:FragmentRunner, wait_at_least: float = 0):
-        self.args = runner.args
-        self.settigns = runner.settings
+        self.runner = runner
         self.wait_at_least = wait_at_least
 
-    def get_requested_actors(self, actors: Actors) -> Sequence[ActorBase]:
+    def get_requested_actors(self) -> Sequence[ActorBase]:
         pass
 
-    def run(self, actors: Actors):
+    def run(self, *args, **kwargs):
         pass
 
 class WaitingFragment(ProtocolFragment):
@@ -186,27 +187,27 @@ class WaitingFragment(ProtocolFragment):
 
 class ThermoFragment(WaitingFragment):
 
-    def get_requested_actors(self, actors: Actors) -> Sequence[ActorBase]:
-        return [actors.scada, actors.thermo]
+    def get_requested_actors(self) -> Sequence[ActorBase]:
+        return [self.runner.actors.scada, self.runner.actors.thermo]
 
 class MeterFragment(WaitingFragment):
 
-    def get_requested_actors(self, actors: Actors) -> Sequence[ActorBase]:
-        return [actors.scada, actors.meter]
+    def get_requested_actors(self) -> Sequence[ActorBase]:
+        return [self.runner.actors.scada, self.runner.actors.meter]
 
 class GsPwrFragment(ProtocolFragment):
 
-    def get_requested_actors(self, actors: Actors) -> Sequence[ActorBase]:
-        return [actors.scada, actors.meter, actors.atn]
+    def get_requested_actors(self) -> Sequence[ActorBase]:
+        return [self.runner.actors.scada, self.runner.actors.meter, self.runner.actors.atn]
 
-    def run(self, actors: Actors):
-        actors.scada._scada_atn_fast_dispatch_contract_is_alive_stub = True
+    def run(self, *args, **kwargs):
+        self.runner.actors.scada._scada_atn_fast_dispatch_contract_is_alive_stub = True
         num_sets = 10
         for i in range(num_sets):
             print(f"Setting GsPwr {i+1:2d}/{num_sets}")
             typing.cast(
                 GridworksSimPm1_PowerMeterDriver,
-                actors.meter.driver
+                self.runner.actors.meter.driver
             ).fake_power_w += 1000
             time.sleep(1)
         time.sleep(5)
@@ -214,27 +215,29 @@ class GsPwrFragment(ProtocolFragment):
 
 class AllFragments(ProtocolFragment):
 
-    def get_requested_actors(self, actors: Actors) -> Sequence[ActorBase]:
+    def get_requested_actors(self) -> Sequence[ActorBase]:
         return [
-            actors.scada,
-            actors.atn,
-            actors.home_alone,
-            actors.relay,
-            actors.meter,
-            actors.thermo
+            self.runner.actors.scada,
+            self.runner.actors.atn,
+            self.runner.actors.home_alone,
+            self.runner.actors.relay,
+            self.runner.actors.meter,
+            self.runner.actors.thermo
         ]
 
-    def run(self, actors:Actors):
+    def run(self, *args, **kwargs):
+        actors = self.runner.actors
+        args = self.runner.args
         actors.scada._scada_atn_fast_dispatch_contract_is_alive_stub = True
 
-        do_nothing(self.args.do_nothing_time)
+        do_nothing(args.do_nothing_time)
 
         delimit("TURNING ON")
         actors.atn.turn_on(ShNode.by_alias["a.elt1.relay"])
         wait_for(lambda: actors.relay.relay_state == 1, 10, f"Relay state")
         delimit("TURNED ON")
 
-        do_nothing(self.args.do_nothing_time)
+        do_nothing(args.do_nothing_time)
 
         delimit("REQUESTING STATUS")
         actors.atn.status()
@@ -259,7 +262,7 @@ class AllFragments(ProtocolFragment):
         )
         delimit("SCADA GOT STATUS")
 
-        do_nothing(self.args.do_nothing_time)
+        do_nothing(args.do_nothing_time)
 
         delimit("SCADA SENDING STATUS")
         actors.scada.send_status()
@@ -282,7 +285,9 @@ def show_protocol(argv: Optional[List[str]] = None):
     setup_logging(args, settings)
     please_be_quiet()
     load_house.load_all(settings.world_root_alias)
-    runner = FragmentRunner(args, settings, Actors(settings))
+    if not args.fragments:
+        args.fragments = ["all"]
+    runner = FragmentRunner(args, settings)
     runner.run()
 
 if __name__ == "__main__":
