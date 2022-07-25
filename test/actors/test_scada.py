@@ -217,14 +217,10 @@ def test_scada_small():
 
 
 def test_scada_periodic_status_delivery():
-    """Verify Scada sends GtShStatus message to Atn periodically and that its contents contain data
-    Scada previously from sensors.
-    """
-
-    class ScadaEmptyStatusFragment(ProtocolFragment):
+    class ScadaPeriodicStatusFragment(ProtocolFragment):
 
         def __init__(self, runner_: FragmentRunner):
-            runner_.actors.scada._last_5_cron_s = int(time.time())
+            runner_.actors.scada.last_5_cron_s = int(time.time())
             super().__init__(runner_)
 
         def get_requested_actors(self) -> typing.Sequence[ActorBase]:
@@ -233,19 +229,37 @@ def test_scada_periodic_status_delivery():
         def run(self):
             scada = self.runner.actors.scada
             atn = self.runner.actors.atn
-            status_topic = f"{scada.scada_g_node_alias}/gt.sh.status.110"
-            assert atn.num_received_by_topic[status_topic] == 0
-            # noinspection PyProtectedMember
-            scada._last_5_cron_s -= 299
+            assert atn.num_received_by_topic[scada.status_topic] == 0
+            assert atn.num_received_by_topic[scada.snapshot_topic] == 0
+            scada.last_5_cron_s -= 299
             wait_for(
-                lambda: atn.num_received_by_topic[status_topic] == 1,
-                10,
+                lambda: atn.num_received_by_topic[scada.status_topic] == 1,
+                5,
                 "Atn wait for status message"
             )
+            wait_for(
+                lambda: atn.num_received_by_topic[scada.snapshot_topic] == 1,
+                5,
+                "Atn wait for snapshot message"
+            )
 
-    settings = ScadaSettings(log_message_summary=True)
-    load_house.load_all(settings.world_root_alias)
-    runner = FragmentRunner(settings)
-    runner.add_fragment(ScadaEmptyStatusFragment(runner))
-    runner.run()
+    FragmentRunner.run_fragment(ScadaPeriodicStatusFragment)
 
+def test_scada_snaphot_request_delivery():
+    class ScadaSnapshotRequestFragment(ProtocolFragment):
+
+        def get_requested_actors(self) -> typing.Sequence[ActorBase]:
+            return [self.runner.actors.scada, self.runner.actors.atn]
+
+        def run(self):
+            scada = self.runner.actors.scada
+            atn = self.runner.actors.atn
+            assert atn.num_received_by_topic[scada.snapshot_topic] == 0
+            atn.status()
+            wait_for(
+                lambda: atn.num_received_by_topic[scada.snapshot_topic] == 1,
+                10,
+                "Atn wait for snapshot message"
+            )
+
+    FragmentRunner.run_fragment(ScadaSnapshotRequestFragment)

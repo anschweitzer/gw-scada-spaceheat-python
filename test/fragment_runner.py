@@ -1,6 +1,7 @@
 import time
-from typing import Optional, List, Sequence, Dict
+from typing import Optional, List, Sequence, Dict, Callable
 
+import load_house
 from actors.actor_base import ActorBase
 from actors.boolean_actuator import BooleanActuator
 from actors.power_meter import PowerMeter
@@ -118,6 +119,15 @@ class FragmentRunner:
                 do_nothing(time_left)
         finally:
             self.stop()
+
+    @classmethod
+    def run_fragment(cls, fragment_factory: Callable[["FragmentRunner"], "ProtocolFragment"]):
+        settings = ScadaSettings(log_message_summary=True)
+        load_house.load_all(settings.world_root_alias)
+        runner = FragmentRunner(settings)
+        runner.add_fragment(fragment_factory(runner))
+        runner.run()
+
 
 class ProtocolFragment:
     runner: FragmentRunner
