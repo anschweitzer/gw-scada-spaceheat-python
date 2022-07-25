@@ -417,17 +417,20 @@ class Scada(ScadaBase):
             telemetry_name_list=telemetry_name_list,
         ).tuple
 
+    def send_status_snapshot(self):
+        self.gw_publish(
+            payload=GtShCliScadaResponse_Maker(
+                from_g_node_alias=self.scada_g_node_alias,
+                from_g_node_id=self.scada_g_node_id,
+                snapshot=self.make_status_snapshot(),
+            ).tuple
+        )
+
     def gt_sh_cli_atn_cmd_received(self, payload: GtShCliAtnCmd):
         if payload.SendSnapshot is not True:
             return
+        self.send_status_snapshot()
 
-        snapshot = self.make_status_snapshot()
-        payload = GtShCliScadaResponse_Maker(
-            from_g_node_alias=self.scada_g_node_alias,
-            from_g_node_id=self.scada_g_node_id,
-            snapshot=snapshot,
-        ).tuple
-        self.gw_publish(payload=payload)
 
     ################################################
     # Primary functions
@@ -443,7 +446,6 @@ class Scada(ScadaBase):
             send_time_unix_ms=int(time.time() * 1000),
         ).tuple
         self.publish(payload=dispatch_payload)
-        self.gw_publish(payload=dispatch_payload)
         self.screen_print(f"Dispatched {ba.alias}  on")
         return ScadaCmdDiagnostic.SUCCESS
 
@@ -457,7 +459,6 @@ class Scada(ScadaBase):
             send_time_unix_ms=int(time.time() * 1000),
         ).tuple
         self.publish(payload=dispatch_payload)
-        self.gw_publish(payload=dispatch_payload)
         self.screen_print(f"Dispatched {ba.alias} off")
         return ScadaCmdDiagnostic.SUCCESS
 
@@ -541,6 +542,7 @@ class Scada(ScadaBase):
         self.status_to_store[status.StatusUid] = status
         self.gw_publish(status)
         self.publish(status)
+        self.send_status_snapshot()
         self.flush_latest_readings()
 
     def cron_every_5(self):
