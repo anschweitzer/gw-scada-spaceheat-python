@@ -1,5 +1,4 @@
 """Test Scada actor"""
-import argparse
 import time
 import typing
 
@@ -29,7 +28,7 @@ from schema.gt.gt_telemetry.gt_telemetry_maker import GtTelemetry_Maker
 from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local_maker import (
     GtDispatchBooleanLocal_Maker,
 )
-from test.show_protocol import FragmentRunner, ProtocolFragment
+from test.fragment_runner import FragmentRunner, ProtocolFragment
 from test.utils import wait_for
 
 
@@ -246,7 +245,7 @@ def test_scada_periodic_status_delivery():
 
     settings = ScadaSettings(log_message_summary=True)
     load_house.load_all(settings.world_root_alias)
-    runner = FragmentRunner(argparse.Namespace(wait_at_least=0, fragments=[], do_nothing_time=0), settings)
+    runner = FragmentRunner(settings)
     runner.add_fragment(ScadaEmptyStatusFragment(runner))
     runner.run()
 
