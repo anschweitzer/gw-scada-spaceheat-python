@@ -70,10 +70,10 @@ class FragmentRunner:
     def add_fragment(self, fragment: "ProtocolFragment") -> "FragmentRunner":
         self.fragments.append(fragment)
         self.wait_at_least = max(self.wait_at_least, fragment.wait_at_least)
-        self.request_actor(fragment.get_requested_actors())
+        self.request_actors(fragment.get_requested_actors())
         return self
 
-    def request_actor(self, actors: Sequence[ActorBase]) -> "FragmentRunner":
+    def request_actors(self, actors: Sequence[ActorBase]) -> "FragmentRunner":
         for actor in actors:
             if actor.node.alias not in self.requested:
                 self.requested[actor.node.alias] = actor
