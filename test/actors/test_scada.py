@@ -15,12 +15,14 @@ from schema.gs.gs_pwr_maker import GsPwr_Maker
 from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status import (
     GtShBooleanactuatorCmdStatus,
 )
+from schema.gt.gt_sh_cli_scada_response.gt_sh_cli_scada_response import GtShCliScadaResponse
 from schema.gt.gt_sh_multipurpose_telemetry_status.gt_sh_multipurpose_telemetry_status import (
     GtShMultipurposeTelemetryStatus,
 )
 from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status import (
     GtShSimpleTelemetryStatus,
 )
+from schema.gt.gt_sh_status.gt_sh_status import GtShStatus
 from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor_maker import (
     GtShTelemetryFromMultipurposeSensor_Maker,
 )
@@ -217,7 +219,7 @@ def test_scada_small():
 
 
 def test_scada_periodic_status_delivery():
-    class ScadaPeriodicStatusFragment(ProtocolFragment):
+    class Fragment(ProtocolFragment):
 
         def __init__(self, runner_: FragmentRunner):
             runner_.actors.scada.last_5_cron_s = int(time.time())
@@ -243,10 +245,10 @@ def test_scada_periodic_status_delivery():
                 "Atn wait for snapshot message"
             )
 
-    FragmentRunner.run_fragment(ScadaPeriodicStatusFragment)
+    FragmentRunner.run_fragment(Fragment)
 
 def test_scada_snaphot_request_delivery():
-    class ScadaSnapshotRequestFragment(ProtocolFragment):
+    class Fragment(ProtocolFragment):
 
         def get_requested_actors(self) -> typing.Sequence[ActorBase]:
             return [self.runner.actors.scada, self.runner.actors.atn]
@@ -262,4 +264,110 @@ def test_scada_snaphot_request_delivery():
                 "Atn wait for snapshot message"
             )
 
-    FragmentRunner.run_fragment(ScadaSnapshotRequestFragment)
+    FragmentRunner.run_fragment(Fragment)
+
+
+def test_scada_relay_dispatch():
+    class Fragment(ProtocolFragment):
+
+        def __init__(self, runner_: FragmentRunner):
+            runner_.actors.scada._scada_atn_fast_dispatch_contract_is_alive_stub = True
+            runner_.actors.scada.last_5_cron_s = int(time.time())
+            super().__init__(runner_)
+
+        def get_requested_actors(self) -> typing.Sequence[ActorBase]:
+            return [self.runner.actors.scada, self.runner.actors.atn]
+
+        def run(self):
+            atn = self.runner.actors.atn
+            relay = self.runner.actors.relay
+            scada = self.runner.actors.scada
+
+            # Verify scada status and snapshot are emtpy
+            status = scada.make_status()
+            snapshot = scada.make_snapshot()
+            assert len(status.SimpleTelemetryList) == 0
+            assert len(status.BooleanactuatorCmdList) == 0
+            assert len(status.MultipurposeTelemetryList) == 0
+            assert len(snapshot.Snapshot.TelemetryNameList) == 0
+            assert len(snapshot.Snapshot.AboutNodeAliasList) == 0
+            assert len(snapshot.Snapshot.ValueList) == 0
+            relay_state_topic = f"{relay.node.alias}/gt.telemetry.110"
+            relay_command_received_topic = f"{relay.node.alias}/gt.driver.booleanactuator.cmd.100"
+            assert scada.num_received_by_topic[relay_state_topic] == 0
+            assert scada.num_received_by_topic[relay_command_received_topic] == 0
+
+            # Start the relay and verify it reports its initial state
+            relay.start()
+            self.runner.request_actor([relay])
+            wait_for(
+                lambda : scada.num_received_by_topic[relay_state_topic] == 1,
+                5,
+                "Scada wait for relay state change"
+            )
+            status = scada.make_status()
+            assert len(status.SimpleTelemetryList) == 1
+            assert status.SimpleTelemetryList[0].ValueList == [0]
+            assert status.SimpleTelemetryList[0].ShNodeAlias == relay.node.alias
+            assert status.SimpleTelemetryList[0].TelemetryName == TelemetryName.RELAY_STATE
+
+            # Turn on the relay.
+            atn.turn_on(relay.node)
+
+            # Verify scada gets telemetry state and command ack.
+            wait_for(
+                lambda : scada.num_received_by_topic[relay_state_topic] == 1,
+                5,
+                "Scada wait for relay state change"
+            )
+            wait_for(
+                lambda : scada.num_received_by_topic[relay_command_received_topic] == 1,
+                5,
+                "Scada wait for relay command received"
+            )
+            status = scada.make_status()
+            assert len(status.SimpleTelemetryList) == 1
+            assert status.SimpleTelemetryList[0].ValueList == [0, 1]
+            assert status.SimpleTelemetryList[0].ShNodeAlias == relay.node.alias
+            assert status.SimpleTelemetryList[0].TelemetryName == TelemetryName.RELAY_STATE
+            assert len(status.BooleanactuatorCmdList) == 1
+            assert status.BooleanactuatorCmdList[0].RelayStateCommandList == [1]
+            assert status.BooleanactuatorCmdList[0].ShNodeAlias == relay.node.alias
+
+            # Cause scada to send a status (and snapshot) now
+            scada.last_5_cron_s -= 299
+
+            # Verify Atn got status and snapshot
+            wait_for(
+                lambda: atn.num_received_by_topic[scada.status_topic] == 1,
+                5,
+                "Atn wait for status message"
+            )
+            wait_for(
+                lambda: atn.num_received_by_topic[scada.snapshot_topic] == 1,
+                5,
+                "Atn wait for snapshot message"
+            )
+
+            # Verify contents of status and snapshot are as expected
+            status = atn.latest_status_payload
+            assert isinstance(status, GtShStatus)
+            assert len(status.SimpleTelemetryList) == 1
+            assert status.SimpleTelemetryList[0].ValueList == [0, 1]
+            assert status.SimpleTelemetryList[0].ShNodeAlias == relay.node.alias
+            assert status.SimpleTelemetryList[0].TelemetryName == TelemetryName.RELAY_STATE
+            assert len(status.BooleanactuatorCmdList) == 1
+            assert status.BooleanactuatorCmdList[0].RelayStateCommandList == [1]
+            assert status.BooleanactuatorCmdList[0].ShNodeAlias == relay.node.alias
+            snapshot = atn.latest_cli_response_payload
+            assert isinstance(snapshot, GtShCliScadaResponse)
+            assert snapshot.Snapshot.AboutNodeAliasList == [relay.node.alias]
+            assert snapshot.Snapshot.ValueList == [1]
+
+            # Verify scada has cleared its state
+            status = scada.make_status()
+            assert len(status.SimpleTelemetryList) == 0
+            assert len(status.BooleanactuatorCmdList) == 0
+            assert len(status.MultipurposeTelemetryList) == 0
+
+    FragmentRunner.run_fragment(Fragment)
