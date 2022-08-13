@@ -109,6 +109,7 @@ def test_scada_small():
 
 
 def test_scada2_relay_dispatch(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
     debug_logs_path = tmp_path / "output/debug_logs"
     debug_logs_path.mkdir(parents=True, exist_ok=True)
     settings = ScadaSettings(logging_on=True, log_message_summary=True)
