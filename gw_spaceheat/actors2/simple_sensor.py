@@ -1,3 +1,11 @@
+"""SimpleSensor implementation.
+
+The SimpleSensor delegates most of its work to a SimpleSensorDriverThread. SimpleSensorDriverThread in turn delegates
+its threading infrastructure to SyncAsyncInteractionThread. SimpleSensors provides SimpleSensorDriverThread with an
+optionally bi-directional bridge to the rest of the proactor universe.
+
+"""
+
 import asyncio
 import queue
 import time

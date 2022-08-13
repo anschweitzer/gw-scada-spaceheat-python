@@ -1,3 +1,5 @@
+"""Proactor-internal messages wrappers of Scada message structures."""
+
 import time
 
 from proactor.message import Message, Header

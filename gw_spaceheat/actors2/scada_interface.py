@@ -1,3 +1,5 @@
+"""GridWorks Scada functionality beyond proactor.ServicesInterface"""
+
 from abc import ABC, abstractmethod
 
 from config import ScadaSettings

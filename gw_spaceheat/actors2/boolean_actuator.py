@@ -1,3 +1,5 @@
+"""Implements BooleanActuator via SimpleSensor and SimpleSensorDriverThread."""
+
 from typing import Optional, Any
 
 from pydantic import BaseModel

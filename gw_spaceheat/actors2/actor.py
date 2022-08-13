@@ -1,3 +1,5 @@
+"""A partial implementation of ActorInterface which supplies the trivial implementations"""
+
 from abc import ABC
 
 from actors2.actor_interface import ActorInterface

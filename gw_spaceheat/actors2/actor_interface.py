@@ -1,3 +1,5 @@
+"""Pure interface for a proactor sub-object (an Actor) which can communicate and has a GridWorks ShNode."""
+
 import importlib
 import sys
 from abc import ABC, abstractmethod

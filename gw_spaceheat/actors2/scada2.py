@@ -1,3 +1,5 @@
+"""Scada implementation"""
+
 import asyncio
 import time
 import typing

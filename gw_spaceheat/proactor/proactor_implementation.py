@@ -1,3 +1,5 @@
+"""Proactor implementation"""
+
 import asyncio
 from abc import ABC, abstractmethod
 from typing import Dict, List, Awaitable, Any, Optional

@@ -24,7 +24,8 @@ class KnownNames(Enum):
 class Header(BaseModel):
     src: str
     dst: str
-    message_type: str
+    message_type: str # TODO: semantics of this and how namespaces of its contents are built needs to be worked out / explicit
+
 
 
 PayloadT = TypeVar("PayloadT")

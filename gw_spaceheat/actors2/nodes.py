@@ -1,3 +1,10 @@
+"""(Mostly) static functions describing ShNodes that were in Actor/ActorBase Scada/ScadaBase.
+
+This will probably be refactored as we implement our local registry. Currently separated out here for clarity
+because content is static (except for needing a path to the houses.json file, which we should be able to do
+away with).
+"""
+
 import json
 import os
 import typing

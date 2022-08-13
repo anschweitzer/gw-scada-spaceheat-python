@@ -1,3 +1,6 @@
+"""Container for data Scada uses in building status and snapshot messages, separated from Scada2 for clarity,
+not necessarily re-use. """
+
 import time
 import uuid
 from typing import Optional, Dict, List

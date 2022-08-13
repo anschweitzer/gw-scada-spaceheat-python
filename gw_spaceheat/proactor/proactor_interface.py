@@ -1,3 +1,7 @@
+"""Proactor interfaces, separate from implementations to clarify how users of this package interact with it and to
+create forward references for implementation hiearchies
+"""
+
 import asyncio
 from abc import ABC, abstractmethod
 
@@ -5,6 +9,8 @@ from proactor.message import Message
 
 
 class CommunicatorInterface(ABC):
+    """Pure interface necessary for interaction between a sub-object and the system services proactor"""
+
     @property
     @abstractmethod
     def name(self) -> str:
@@ -20,6 +26,8 @@ class CommunicatorInterface(ABC):
 
 
 class Communicator(CommunicatorInterface, ABC):
+    """A partial implementation of CommunicatorInterface which supplies the trivial implementations"""
+
     _name: str
     _services: "ServicesInterface"
 
@@ -36,6 +44,8 @@ class Communicator(CommunicatorInterface, ABC):
 
 
 class Runnable(ABC):
+    """Pure interface to an object which is expected to support starting, stopping and joining. """
+
     @abstractmethod
     def start(self):
         raise NotImplementedError
@@ -53,6 +63,8 @@ class Runnable(ABC):
         await self.join()
 
 class ServicesInterface(CommunicatorInterface):
+    """Interface to system services (the proactor)"""
+
     @abstractmethod
     def get_communicator(self, name: str) -> CommunicatorInterface:
         raise NotImplementedError
