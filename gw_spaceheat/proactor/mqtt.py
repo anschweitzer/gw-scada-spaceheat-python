@@ -1,7 +1,15 @@
-import asyncio
+"""MQTT infrastructure providing support for multiple MTQTT clients
+
+TODO: Replace synchronous use of Paho MQTT Client with asyncio usage, per Paho documentation or external library
+
+Main current limitation: each interaction between asyncio code and the mqtt clients must either have thread locking
+(as is provided inside paho for certain functions such as publish()) or an explicit message based API.
+
+"""
+
 import uuid
 from collections import defaultdict
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional
 
 from paho.mqtt.client import Client as PahoMQTTClient, MQTTMessageInfo
 
@@ -12,31 +20,20 @@ from proactor.message import (
     MQTTConnectFailMessage,
     MQTTDisconnectMessage,
 )
-
-
-class SyncQueueWriter:
-    _queue: asyncio.Queue
-
-    def __init__(self, queue: asyncio.Queue):
-        self._queue = queue
-
-    def put(self, item: Any) -> None:
-        asyncio.get_running_loop().call_soon_threadsafe(self._queue.put_nowait, item)
-
+from proactor.sync_thread import AsyncQueueWriter
 
 class MQTTClientWrapper:
     _name: str
     _client_config: config.MQTTClient
     _client: PahoMQTTClient
-    _receive_queue: SyncQueueWriter
-    _sequence_number: int
+    _receive_queue: AsyncQueueWriter
     _subscriptions: Dict[str, int]
 
     def __init__(
         self,
         name: str,
         client_config: config.MQTTClient,
-        receive_queue: SyncQueueWriter,
+        receive_queue: AsyncQueueWriter,
     ):
         self.name = name
         self._client_config = client_config
@@ -50,7 +47,6 @@ class MQTTClientWrapper:
         self._client.on_connect = self.on_connect
         self._client.on_connect_fail = self.on_connect_fail
         self._client.on_disconnect = self.on_disconnect
-        self._sequence_number = -1
         self._subscriptions = dict()
 
     def start(self):
@@ -69,15 +65,12 @@ class MQTTClientWrapper:
         return self._client.subscribe(topic, qos)
 
     def subscribe_all(self) -> Tuple[int, Optional[int]]:
-        return self._client.subscribe(list(self._subscriptions.items()), 0)
+        if self._subscriptions:
+            return self._client.subscribe(list(self._subscriptions.items()), 0)
 
     def unsubscribe(self, topic: str) -> Tuple[int, Optional[int]]:
         self._subscriptions.pop(topic, None)
         return self._client.unsubscribe(topic)
-
-    def _get_sequence_number(self):
-        self._sequence_number += 1
-        return self._sequence_number
 
     def on_message(self, _, userdata, message):
         self._receive_queue.put(
@@ -85,7 +78,6 @@ class MQTTClientWrapper:
                 client_name=self.name,
                 userdata=userdata,
                 message=message,
-                sequence_number=self._get_sequence_number(),
             )
         )
 
@@ -96,7 +88,6 @@ class MQTTClientWrapper:
                 userdata=userdata,
                 flags=flags,
                 rc=rc,
-                sequence_number=self._get_sequence_number(),
             )
         )
 
@@ -105,7 +96,6 @@ class MQTTClientWrapper:
             MQTTConnectFailMessage(
                 client_name=self.name,
                 userdata=userdata,
-                sequence_number=self._get_sequence_number(),
             )
         )
 
@@ -115,22 +105,24 @@ class MQTTClientWrapper:
                 client_name=self.name,
                 userdata=userdata,
                 rc=rc,
-                sequence_number=self._get_sequence_number(),
             )
         )
 
-
 class MQTTClients:
     _clients: Dict[str, MQTTClientWrapper]
-    _send_queue: SyncQueueWriter
+    _send_queue: AsyncQueueWriter
     _subscriptions: Dict[str, List[Tuple[str, int]]]
 
-    def __init__(self, send_queue: asyncio.Queue):
-        self._send_queue = SyncQueueWriter(send_queue)
+    def __init__(self, async_queue_writer: AsyncQueueWriter):
+        self._send_queue = async_queue_writer
         self._clients = dict()
         self._subscriptions = defaultdict(list)
 
-    def add_client(self, name: str, client_config: config.MQTTClient):
+    def add_client(
+        self,
+        name: str,
+        client_config: config.MQTTClient,
+    ):
         if name in self._clients:
             raise ValueError(f"ERROR. MQTT client named {name} already exists")
         self._clients[name] = MQTTClientWrapper(name, client_config, self._send_queue)

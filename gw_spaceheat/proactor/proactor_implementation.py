@@ -1,6 +1,11 @@
 import asyncio
-from typing import Dict, List, Awaitable
+from abc import ABC, abstractmethod
+from typing import Dict, List, Awaitable, Any, Optional
 
+from paho.mqtt.client import MQTTMessageInfo
+
+import config
+from actors.utils import MessageSummary
 from proactor.message import (
     Message,
     KnownNames,
@@ -11,24 +16,73 @@ from proactor.message import (
     MQTTDisconnectPayload,
 )
 from proactor.mqtt import MQTTClients
-from proactor.proactor_interface import ServicesInterface, Communicator, Runnable
+from proactor.proactor_interface import ServicesInterface, Runnable, CommunicatorInterface
+from proactor.sync_thread import AsyncQueueWriter
+
+
+class MQTTCodec(ABC):
+
+    @abstractmethod
+    def encode(self, payload: Any) -> bytes:
+        pass
+
+    @abstractmethod
+    def decode(self, receipt_payload: MQTTReceiptPayload) -> Any:
+        pass
+
+
 
 
 class Proactor(ServicesInterface, Runnable):
     _name: str
+    _loop: asyncio.AbstractEventLoop
     _receive_queue: asyncio.Queue
     _mqtt_clients: MQTTClients
-    _communicators: Dict[str, Communicator]
+    _mqtt_codecs: Dict[str, MQTTCodec]
+    _communicators: Dict[str, CommunicatorInterface]
     _stop_requested: bool
     _tasks: List[asyncio.Task]
 
-    def __init__(self, name: str = KnownNames.proactor.value):
+    # TODO: Clean up loop control
+    def __init__(self, name: str = KnownNames.proactor.value, loop: Optional[asyncio.AbstractEventLoop] = None):
         self._name = name
-        self._receive_queue = asyncio.Queue()
-        self._mqtt_clients = MQTTClients(self._receive_queue)
+        if loop is None:
+            self._loop = asyncio.get_event_loop()
+        else:
+            self._loop = loop
+        self._receive_queue = asyncio.Queue(loop=loop)
+        self._mqtt_clients = MQTTClients(AsyncQueueWriter(self._loop, self._receive_queue))
+        self._mqtt_codecs = dict()
         self._communicators = dict()
         self._tasks = []
         self._stop_requested = False
+
+    def _add_mqtt_client(
+        self,
+        name: str,
+        client_config: config.MQTTClient,
+        codec: Optional[MQTTCodec] = None,
+    ):
+        self._mqtt_clients.add_client(name, client_config)
+        if codec is not None:
+            self._mqtt_codecs[name] = codec
+
+    def _encode_and_publish(
+        self, client: str, topic: str, payload: Any, qos: int
+    ) -> MQTTMessageInfo:
+        print(MessageSummary.format("OUTq", client, topic, payload))
+        encoder = self._mqtt_codecs[client]
+        return self._mqtt_clients.publish(client, topic, encoder.encode(payload), qos)
+
+    def _add_communicator(self, communicator:CommunicatorInterface):
+        # TODO: There probably needs to be some public version of this for testing.
+        if communicator.name in self._communicators:
+            raise ValueError(f"ERROR. Communicator with name [{communicator.name}] already present")
+        self._communicators[communicator.name] = communicator
+
+    @property
+    def async_receive_queue(self):
+        return self._receive_queue
 
     async def process_messages(self):
         while not self._stop_requested:
@@ -47,24 +101,43 @@ class Proactor(ServicesInterface, Runnable):
     async def _derived_process_message(self, message: Message):
         pass
 
+    async def _derived_process_mqtt_message(self, message: Message[MQTTReceiptPayload], decoded: Any):
+        pass
+
     async def process_message(self, message: Message):
-        # Validate
-        # Decode
-        # Demultiplex
-        # Process
+        print(f"++Proactor.process_message {message.header.src}/{message.header.message_type}")
+        path_dbg = 0
+        print(MessageSummary.format("INx ", self.name, f"{message.header.src}/{message.header.message_type}", message.payload))
         if message.header.message_type == MessageType.mqtt_message.value:
-            self._process_mqtt_message(message)
+            path_dbg |= 0x00000001
+            await self._process_mqtt_message(message)
         elif message.header.message_type == MessageType.mqtt_connected.value:
+            path_dbg |= 0x00000002
             self._process_mqtt_connected(message)
         elif message.header.message_type == MessageType.mqtt_disconnected.value:
+            path_dbg |= 0x00000004
             self._process_mqtt_disconnected(message)
         elif message.header.message_type == MessageType.mqtt_connect_failed.value:
+            path_dbg |= 0x00000008
             self._process_mqtt_connect_fail(message)
         else:
+            path_dbg |= 0x00000010
             await self._derived_process_message(message)
+        print(f"--Proactor.process_message  path:0x{path_dbg:08X}")
 
-    def _process_mqtt_message(self, message: Message[MQTTReceiptPayload]):
-        pass
+    async def _process_mqtt_message(self, message: Message[MQTTReceiptPayload]):
+        print(f"++Proactor._process_mqtt_message {message.header.src}/{message.header.message_type}")
+        path_dbg = 0
+        decoder = self._mqtt_codecs.get(message.payload.client_name, None)
+        if decoder is not None:
+            path_dbg |= 0x00000001
+            decoded = decoder.decode(message.payload)
+        else:
+            path_dbg |= 0x00000002
+            decoded = message.payload
+        print(MessageSummary.format("INq ", self.name, message.payload.message.topic, decoded))
+        await self._derived_process_mqtt_message(message, decoded)
+        print(f"--Proactor._process_mqtt_message  path:0x{path_dbg:08X}")
 
     def _process_mqtt_connected(self, message: Message[MQTTConnectPayload]):
         self._mqtt_clients.subscribe_all(message.payload.client_name)
@@ -76,7 +149,8 @@ class Proactor(ServicesInterface, Runnable):
         pass
 
     async def run_forever(self):
-        pass
+        self.start_tasks()
+        await self.join()
 
     def start_mqtt(self):
         self._mqtt_clients.start()
@@ -111,15 +185,21 @@ class Proactor(ServicesInterface, Runnable):
             for entry in self._communicators.values()
             if isinstance(entry, Runnable)
         ]
-        return await asyncio.gather(*running)
+        return await asyncio.gather(*running, loop=self._loop)
 
     def publish(self, client: str, topic: str, payload: bytes, qos: int):
         self._mqtt_clients.publish(client, topic, payload, qos)
 
     def send(self, message: Message):
+        print(MessageSummary.format("OUTx",  message.header.src, f"{message.header.dst}/{message.header.message_type}", message.payload))
         self._receive_queue.put_nowait(message)
 
-    def get_communicator(self, name: str) -> Communicator:
+    def send_threadsafe(self, message: Message) -> None:
+        self._loop.call_soon_threadsafe(
+            self._receive_queue.put_nowait, message
+        )
+
+    def get_communicator(self, name: str) -> CommunicatorInterface:
         return self._communicators[name]
 
     @property

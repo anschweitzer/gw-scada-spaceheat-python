@@ -1,3 +1,4 @@
+import asyncio
 from abc import ABC, abstractmethod
 
 from proactor.message import Message
@@ -47,16 +48,25 @@ class Runnable(ABC):
     async def join(self):
         raise NotImplementedError
 
-
-class ActorInterface(Communicator, Runnable, ABC):
-    pass
-
+    async def stop_and_join(self):
+        self.stop()
+        await self.join()
 
 class ServicesInterface(CommunicatorInterface):
     @abstractmethod
-    def get_communicator(self, name: str) -> Communicator:
+    def get_communicator(self, name: str) -> CommunicatorInterface:
         raise NotImplementedError
 
     @abstractmethod
     def send(self, message: Message):
         raise NotImplementedError
+
+    @abstractmethod
+    def send_threadsafe(self, message: Message) -> None:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def async_receive_queue(self) -> asyncio.Queue:
+        raise NotImplementedError
+

@@ -1,3 +1,5 @@
+"""Classes providing interaction between synchronous and asynchronous code"""
+
 import asyncio
 import functools
 import queue
@@ -11,6 +13,10 @@ from actors.utils import responsive_sleep
 
 
 class AsyncQueueWriter:
+    """Allow synchronous code to write to an asyncio Queue.
+
+    It is assumed the asynchronous reader has access to the asyncio Queue "await get()" from directly from it.
+    """
     _loop: asyncio.AbstractEventLoop
     _async_queue: asyncio.Queue
 
@@ -19,10 +25,15 @@ class AsyncQueueWriter:
         self._async_queue = async_queue
 
     def put(self, item: Any) -> None:
+        """Write to asyncio queue in a threadsafe way."""
         self._loop.call_soon_threadsafe(self._async_queue.put_nowait, item)
 
 
 class SyncAsyncQueueWriter:
+    """Provide a full duplex communication "channel" between synchronous and asynchronous code.
+
+    It is assumed the asynchronous reader has access to the asyncio Queue "await get()" from directly from it.
+    """
     _loop: asyncio.AbstractEventLoop
     _async_queue: asyncio.Queue
     sync_queue: Optional[queue.Queue]
@@ -40,18 +51,24 @@ class SyncAsyncQueueWriter:
     def put_to_sync_queue(
         self, item: Any, block: bool = True, timeout: Optional[float] = None
     ):
+        """Write to synchronous queue in a threadsafe way."""
         self.sync_queue.put(item, block=block, timeout=timeout)
 
     def put_to_async_queue(self, item: Any):
+        """Write to asynchronous queue in a threadsafe way."""
         self._loop.call_soon_threadsafe(
             self._async_queue.put_nowait, item
         )
 
     def get_from_sync_queue(self, block: bool = True, timeout: Optional[float] = None) -> Any:
+        """Read from synchronous queue in a threadsafe way."""
         return self.sync_queue.get(block=block, timeout=timeout)
 
 
 class SyncAsyncInteractionThread(threading.Thread, ABC):
+    """A thread wrapper providing an async-sync communication channel and simple "iterate, sleep, read message"
+    semantics.
+    """
     SLEEP_STEP_SECONDS = .01
 
     _channel: SyncAsyncQueueWriter
@@ -117,13 +134,14 @@ class SyncAsyncInteractionThread(threading.Thread, ABC):
                     pass
 
     async def async_join(self, timeout: float = None) -> None:
+        # TODO: This must be called from event loop that created the queue. Either document that or get the loop out of the channel.
         if timeout is not None:
             end = time.time() + timeout
         else:
             end = None
         with ThreadPoolExecutor(1) as executor:
             while not self.is_alive():
-                print("HACK")
+                # TODO: This is a hack.
                 if end is not None and end > time.time():
                     await asyncio.sleep(.01)
             if end is not None:

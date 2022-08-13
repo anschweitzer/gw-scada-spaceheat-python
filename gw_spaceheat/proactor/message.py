@@ -1,10 +1,11 @@
+"""Message structures for use between proactor and its sub-objects."""
+
 from enum import Enum
-from typing import Any, Optional, TypeVar, Generic
+from typing import Any, Optional, TypeVar, Generic, Dict
 
 from paho.mqtt.client import MQTTMessage
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
-
 
 class MessageType(Enum):
     invalid = "invalid"
@@ -20,16 +21,13 @@ class KnownNames(Enum):
     proactor = "proactor"
     mqtt_clients = "mqtt_clients"
 
-
 class Header(BaseModel):
     src: str
     dst: str
     message_type: str
-    sequence_number: int
 
 
 PayloadT = TypeVar("PayloadT")
-
 
 class Message(GenericModel, Generic[PayloadT]):
     header: Header
@@ -48,7 +46,6 @@ class MQTTClientMessage(Message[MQTTClientsPayloadT], Generic[MQTTClientsPayload
     def __init__(
         self,
         message_type: MessageType,
-        sequence_number: int,
         payload: MQTTClientsPayloadT,
     ):
         super().__init__(
@@ -56,7 +53,6 @@ class MQTTClientMessage(Message[MQTTClientsPayloadT], Generic[MQTTClientsPayload
                 src=KnownNames.mqtt_clients.value,
                 dst=KnownNames.proactor.value,
                 message_type=message_type.value,
-                sequence_number=sequence_number,
             ),
             payload=payload,
         )
@@ -90,11 +86,9 @@ class MQTTReceiptMessage(MQTTClientMessage[MQTTReceiptPayload]):
         client_name: str,
         userdata: Optional[Any],
         message: MQTTMessage,
-        sequence_number: int,
     ):
         super().__init__(
             message_type=MessageType.mqtt_message,
-            sequence_number=sequence_number,
             payload=MQTTReceiptPayload(
                 client_name=client_name,
                 userdata=userdata,
@@ -108,7 +102,7 @@ class MQTTCommEventPayload(MQTTClientsPayload):
 
 
 class MQTTConnectPayload(MQTTCommEventPayload):
-    flags: int
+    flags: Dict
 
 
 class MQTTConnectMessage(MQTTClientMessage[MQTTConnectPayload]):
@@ -116,13 +110,11 @@ class MQTTConnectMessage(MQTTClientMessage[MQTTConnectPayload]):
         self,
         client_name: str,
         userdata: Optional[Any],
-        flags: int,
+        flags: Dict,
         rc: int,
-        sequence_number: int,
     ):
         super().__init__(
             message_type=MessageType.mqtt_connected,
-            sequence_number=sequence_number,
             payload=MQTTConnectPayload(
                 client_name=client_name,
                 userdata=userdata,
@@ -137,10 +129,9 @@ class MQTTConnectFailPayload(MQTTClientsPayload):
 
 
 class MQTTConnectFailMessage(MQTTClientMessage[MQTTConnectFailPayload]):
-    def __init__(self, client_name: str, userdata: Optional[Any], sequence_number: int):
+    def __init__(self, client_name: str, userdata: Optional[Any]):
         super().__init__(
             message_type=MessageType.mqtt_connect_failed,
-            sequence_number=sequence_number,
             payload=MQTTConnectFailPayload(
                 client_name=client_name,
                 userdata=userdata,
@@ -153,12 +144,9 @@ class MQTTDisconnectPayload(MQTTCommEventPayload):
 
 
 class MQTTDisconnectMessage(MQTTClientMessage[MQTTDisconnectPayload]):
-    def __init__(
-        self, client_name: str, userdata: Optional[Any], rc: int, sequence_number: int
-    ):
+    def __init__(self, client_name: str, userdata: Optional[Any], rc: int):
         super().__init__(
             message_type=MessageType.mqtt_disconnected,
-            sequence_number=sequence_number,
             payload=MQTTDisconnectPayload(
                 client_name=client_name,
                 userdata=userdata,
