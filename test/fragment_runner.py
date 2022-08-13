@@ -48,6 +48,7 @@ class Actors:
         self.thermo = SimpleSensor(node=ShNode.by_alias["a.tank.temp0"], settings=settings)
 
 
+
 class FragmentRunner:
     settings: ScadaSettings
     actors: Actors
@@ -141,7 +142,7 @@ class ProtocolFragment:
         self.wait_at_least = wait_at_least
 
     def get_requested_actors(self) -> Sequence[ActorBase]:
-        pass
+        return []
 
     def run(self, *args, **kwargs):
         pass
