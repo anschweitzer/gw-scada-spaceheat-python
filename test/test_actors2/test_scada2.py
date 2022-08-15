@@ -17,7 +17,9 @@ from schema.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryNa
 from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status import (
     GtShBooleanactuatorCmdStatus,
 )
-from schema.gt.gt_sh_cli_scada_response.gt_sh_cli_scada_response import GtShCliScadaResponse
+from schema.gt.snapshot_spaceheat.snapshot_spaceheat_maker import SnapshotSpaceheat
+
+
 from schema.gt.gt_sh_multipurpose_telemetry_status.gt_sh_multipurpose_telemetry_status import (
     GtShMultipurposeTelemetryStatus,
 )
@@ -165,14 +167,14 @@ def test_scada2_relay_dispatch(tmp_path, monkeypatch):
 
         # Verify relay is off
         atn.status()
-        assert atn.latest_cli_response_payload is None
+        assert atn.latest_snapshot_payload is None
         wait_for(
-            lambda : atn.latest_cli_response_payload is not None,
+            lambda : atn.latest_snapshot_payload is not None,
             3,
             "atn did not receive status"
         )
-        snapshot1: GtShCliScadaResponse = typing.cast(GtShCliScadaResponse, atn.latest_cli_response_payload)
-        assert isinstance(snapshot1, GtShCliScadaResponse)
+        snapshot1: SnapshotSpaceheat = typing.cast(SnapshotSpaceheat, atn.latest_snapshot_payload)
+        assert isinstance(snapshot1, SnapshotSpaceheat)
         if snapshot1.Snapshot.AboutNodeAliasList:
             relay_idx = snapshot1.Snapshot.AboutNodeAliasList.index(relay_alias)
             relay_value = snapshot1.Snapshot.ValueList[relay_idx]
@@ -187,12 +189,12 @@ def test_scada2_relay_dispatch(tmp_path, monkeypatch):
         # Check relay state
         atn.status()
         wait_for(
-            lambda : atn.latest_cli_response_payload is not None and id(atn.latest_cli_response_payload) != id(snapshot1),
+            lambda : atn.latest_snapshot_payload is not None and id(atn.latest_snapshot_payload) != id(snapshot1),
             3,
             "atn did not receive status"
         )
-        snapshot2 = atn.latest_cli_response_payload
-        assert isinstance(snapshot2, GtShCliScadaResponse)
+        snapshot2 = atn.latest_snapshot_payload
+        assert isinstance(snapshot2, SnapshotSpaceheat)
         assert relay_alias in snapshot2.Snapshot.AboutNodeAliasList, f"ERROR relay [{relay_alias}] not in {snapshot2.Snapshot.AboutNodeAliasList}"
         relay_idx = snapshot2.Snapshot.AboutNodeAliasList.index(relay_alias)
         relay_value = snapshot2.Snapshot.ValueList[relay_idx]

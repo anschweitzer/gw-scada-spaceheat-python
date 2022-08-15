@@ -17,8 +17,6 @@ from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status
 from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status_maker import (
     GtShBooleanactuatorCmdStatus_Maker,
 )
-from schema.gt.gt_sh_cli_scada_response.gt_sh_cli_scada_response import GtShCliScadaResponse
-from schema.gt.gt_sh_cli_scada_response.gt_sh_cli_scada_response_maker import GtShCliScadaResponse_Maker
 from schema.gt.gt_sh_multipurpose_telemetry_status.gt_sh_multipurpose_telemetry_status import (
     GtShMultipurposeTelemetryStatus,
 )
@@ -33,7 +31,14 @@ from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status_maker
 )
 from schema.gt.gt_sh_status.gt_sh_status import GtShStatus
 from schema.gt.gt_sh_status.gt_sh_status_maker import GtShStatus_Maker
-from schema.gt.gt_sh_status_snapshot.gt_sh_status_snapshot_maker import GtShStatusSnapshot_Maker
+from schema.gt.telemetry_snapshot_spaceheat.telemetry_snapshot_spaceheat_maker import (
+    TelemetrySnapshotSpaceheat,
+    TelemetrySnapshotSpaceheat_Maker,
+)
+from schema.gt.snapshot_spaceheat.snapshot_spaceheat_maker import (
+    SnapshotSpaceheat,
+    SnapshotSpaceheat_Maker,
+)
 
 
 class ScadaData:
@@ -195,7 +200,7 @@ class ScadaData:
             simple_telemetry_list=simple_telemetry_list,
         ).tuple
 
-    def make_snapshot(self) -> GtShCliScadaResponse:
+    def make_telemetry_snapshot(self) -> TelemetrySnapshotSpaceheat:
         about_node_alias_list = []
         value_list = []
         telemetry_name_list = []
@@ -209,13 +214,16 @@ class ScadaData:
                 about_node_alias_list.append(tt.AboutNode.alias)
                 value_list.append(self.latest_value_from_multipurpose_sensor[tt])
                 telemetry_name_list.append(tt.TelemetryName)
-        return GtShCliScadaResponse_Maker(
+        return TelemetrySnapshotSpaceheat_Maker(
+            about_node_alias_list=about_node_alias_list,
+            report_time_unix_ms=int(1000 * time.time()),
+            value_list=value_list,
+            telemetry_name_list=telemetry_name_list,
+        ).tuple
+
+    def make_snapshot(self) -> SnapshotSpaceheat:
+        return SnapshotSpaceheat_Maker(
             from_g_node_alias=self.scada_g_node_alias,
-            from_g_node_id=self.scada_g_node_id,
-            snapshot=GtShStatusSnapshot_Maker(
-                about_node_alias_list=about_node_alias_list,
-                report_time_unix_ms=int(1000 * time.time()),
-                value_list=value_list,
-                telemetry_name_list=telemetry_name_list,
-            ).tuple,
+            from_g_node_instance_id=self.scada_g_node_id,
+            snapshot=self.make_telemetry_snapshot(),
         ).tuple
