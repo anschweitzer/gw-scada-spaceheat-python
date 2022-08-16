@@ -1,11 +1,8 @@
 """Classes providing interaction between synchronous and asynchronous code"""
 
 import asyncio
-import functools
 import queue
 import threading
-import time
-import traceback
 from abc import ABC
 from typing import Any, Optional
 
@@ -133,15 +130,24 @@ class SyncAsyncInteractionThread(threading.Thread, ABC):
                 except queue.Empty:
                     pass
 
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
     async def async_join(self, timeout: float = None) -> None:
-        # TODO: This must be called from event loop that created the queue. Either document that or get the loop out of the channel.
-        if timeout is not None:
-            end = time.time() + timeout
-        else:
-            end = None
-        if end is not None:
-            remaining = end - time.time()
-        else:
-            remaining = None
-        if remaining is None or remaining > 0:
-            await asyncio.get_event_loop().run_in_executor(None, functools.partial(self.join, timeout=remaining))
+        # TODO: Giant hack. Alternate implementations below caused
+        #       hangups or (probably) harmless but ugly exceptions
+        await asyncio.sleep(.1)
+
+        # if timeout is not None:
+        #     end = time.time() + timeout
+        # else:
+        #     end = None
+        # if end is not None:
+        #     remaining = end - time.time()
+        # else:
+        #     remaining = None
+        # # harmless (?) exceptions
+        # while (remaining is None or remaining > 0) and self.is_alive():
+        #     await asyncio.sleep(.01)
+        #     if remaining is not None:
+        #         remaining = end - time.time()
+        # # hangs
+        # await asyncio.get_event_loop().run_in_executor(None, functools.partial(self.join, timeout=remaining))

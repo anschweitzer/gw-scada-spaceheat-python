@@ -161,12 +161,14 @@ async def test_scada2_relay_dispatch(tmp_path, monkeypatch):
             relay_idx = snapshot1.Snapshot.AboutNodeAliasList.index(relay_alias)
             relay_value = snapshot1.Snapshot.ValueList[relay_idx]
             assert relay_value is None or relay_value == 0
+        assert (
+            relay_node not in scada2._data.latest_simple_value or
+            scada2._data.latest_simple_value[relay_node] != 1
+        )
 
-        # turn relay on
         atn.turn_on(relay_node)
-
         await await_for(
-            lambda : scada2._data.recent_simple_values[relay_node] is not None,
+            lambda : scada2._data.latest_simple_value[relay_node] == 1,
             3,
             "scada did not receive update from relay"
         )
@@ -178,6 +180,13 @@ async def test_scada2_relay_dispatch(tmp_path, monkeypatch):
             3,
             "atn did not receive status"
         )
+        snapshot2 = atn.latest_snapshot_payload
+        assert isinstance(snapshot2, SnapshotSpaceheat)
+        assert relay_alias in snapshot2.Snapshot.AboutNodeAliasList, f"ERROR relay [{relay_alias}] not in {snapshot2.Snapshot.AboutNodeAliasList}"
+        relay_idx = snapshot2.Snapshot.AboutNodeAliasList.index(relay_alias)
+        relay_value = snapshot2.Snapshot.ValueList[relay_idx]
+        assert relay_value == 1
+
     finally:
         # noinspection PyBroadException
         try:
