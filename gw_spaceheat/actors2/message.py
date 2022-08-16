@@ -2,7 +2,9 @@
 
 import time
 
-from proactor.message import Message, Header
+from pydantic import BaseModel
+
+from proactor.message import Message, Header, KnownNames
 from schema.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
 from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local import GtDispatchBooleanLocal
 from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local_maker import GtDispatchBooleanLocal_Maker
@@ -50,8 +52,6 @@ class GtDriverBooleanactuatorCmdResponse(Message[GtDriverBooleanactuatorCmd]):
             command_time_unix_ms=int(time.time() * 1000),
             sh_node_alias=src,
         ).tuple
-        print(dst)
-        print(type(dst))
         super().__init__(
             header=Header(
                 src=src,
@@ -82,4 +82,39 @@ class GtDispatchBooleanLocalMessage(Message[GtDispatchBooleanLocal]):
                 message_type=payload.TypeAlias,
             ),
             payload=payload,
+        )
+
+# TODO: Replace with generalized debug message
+class ScadaDBGPing(BaseModel):
+    number: int
+
+# TODO: Replace with generalized debug message
+class ScadaDBGPingMessage(Message[ScadaDBGPing]):
+    def __init__(
+            self,
+            number: int,
+    ):
+        super().__init__(
+            header=Header(
+                src="foo",
+                dst=KnownNames.proactor.value,
+                message_type=self.__class__.__name__,
+            ),
+            payload=ScadaDBGPing(number=number)
+        )
+
+# TODO: Replace with generalized debug message
+class ShowSubscriptions(BaseModel):
+    pass
+
+# TODO: Replace with generalized debug message
+class ShowSubscriptionsMessage(Message[ShowSubscriptions]):
+    def __init__(self):
+        super().__init__(
+            header=Header(
+                src="foo",
+                dst=KnownNames.proactor.value,
+                message_type=self.__class__.__name__,
+            ),
+            payload=ShowSubscriptions()
         )

@@ -1,6 +1,7 @@
 """Proactor implementation"""
 
 import asyncio
+import traceback
 from abc import ABC, abstractmethod
 from typing import Dict, List, Awaitable, Any, Optional
 
@@ -15,11 +16,27 @@ from proactor.message import (
     MQTTConnectPayload,
     MQTTReceiptPayload,
     MQTTConnectFailPayload,
-    MQTTDisconnectPayload,
+    MQTTDisconnectPayload, MQTTSubackPayload,
 )
 from proactor.mqtt import MQTTClients
 from proactor.proactor_interface import ServicesInterface, Runnable, CommunicatorInterface
 from proactor.sync_thread import AsyncQueueWriter
+
+def _print_tasks(loop_, tag = "", tasks = None):
+    # TODO: Move this to some general debugging location
+    if tasks is None:
+        tasks = asyncio.all_tasks(loop_)
+    print(f"Tasks: {len(tasks)}  [{tag}]")
+    def _exception(task_):
+        try:
+            exception_ = task_.exception()
+        except asyncio.CancelledError as e:
+            exception_ = e
+        except asyncio.InvalidStateError:
+            exception_ = None
+        return exception_
+    for i, task in enumerate(tasks):
+        print(f"\t{i+1}/{len(tasks)}  {task.get_name():20s}  done:{task.done()}   exception:{_exception(task)}  {task.get_coro()}")
 
 
 class MQTTCodec(ABC):
@@ -31,8 +48,6 @@ class MQTTCodec(ABC):
     @abstractmethod
     def decode(self, receipt_payload: MQTTReceiptPayload) -> Any:
         pass
-
-
 
 
 class Proactor(ServicesInterface, Runnable):
@@ -87,14 +102,21 @@ class Proactor(ServicesInterface, Runnable):
         return self._receive_queue
 
     async def process_messages(self):
-        while not self._stop_requested:
-            message = await self._receive_queue.get()
-            if not self._stop_requested:
-                await self.process_message(message)
-            self._receive_queue.task_done()
+        try:
+            while not self._stop_requested:
+                message = await self._receive_queue.get()
+                if not self._stop_requested:
+                    await self.process_message(message)
+                self._receive_queue.task_done()
+        # TODO: Clean this up
+        except Exception as e:
+            print(f"ERROR in process_message: {e}")
+            traceback.print_exc()
+            print("Stopping procator")
+            self.stop()
 
     def start_tasks(self):
-        self._tasks = [asyncio.create_task(self.process_messages())]
+        self._tasks = [asyncio.create_task(self.process_messages(), name="process_messages")]
         self._start_derived_tasks()
 
     def _start_derived_tasks(self):
@@ -110,6 +132,7 @@ class Proactor(ServicesInterface, Runnable):
         print(f"++Proactor.process_message {message.header.src}/{message.header.message_type}")
         path_dbg = 0
         print(MessageSummary.format("INx ", self.name, f"{message.header.src}/{message.header.message_type}", message.payload))
+        # TODO: be easier on the eyes
         if message.header.message_type == MessageType.mqtt_message.value:
             path_dbg |= 0x00000001
             await self._process_mqtt_message(message)
@@ -122,6 +145,8 @@ class Proactor(ServicesInterface, Runnable):
         elif message.header.message_type == MessageType.mqtt_connect_failed.value:
             path_dbg |= 0x00000008
             self._process_mqtt_connect_fail(message)
+        elif message.header.message_type == MessageType.mqtt_suback.value:
+            self._process_mqtt_suback(message)
         else:
             path_dbg |= 0x00000010
             await self._derived_process_message(message)
@@ -150,6 +175,9 @@ class Proactor(ServicesInterface, Runnable):
     def _process_mqtt_connect_fail(self, message: Message[MQTTConnectFailPayload]):
         pass
 
+    def _process_mqtt_suback(self, message: Message[MQTTSubackPayload]):
+        pass
+
     async def run_forever(self):
         self.start_tasks()
         await self.join()
@@ -168,6 +196,9 @@ class Proactor(ServicesInterface, Runnable):
 
     def stop(self):
         self._stop_requested = True
+        for task in self._tasks:
+            if not task.done():
+                task.cancel(msg="Stop requested")
         self.stop_mqtt()
         for communicator in self._communicators.values():
             if isinstance(communicator, Runnable):
@@ -178,16 +209,29 @@ class Proactor(ServicesInterface, Runnable):
                     pass
 
     async def join(self):
+        print("++Proactor.join()")
+        _print_tasks(self._loop, "Proactor.join() - all tasks")
         running: List[Awaitable] = self._tasks[:]
         for communicator in self._communicators.values():
+            communicator_name = communicator.name
             if isinstance(communicator, Runnable):
-                running.append(communicator.join())
-        running: List[Awaitable] = [
-            entry.join()
-            for entry in self._communicators.values()
-            if isinstance(entry, Runnable)
-        ]
-        return await asyncio.gather(*running, loop=self._loop)
+                running.append(self._loop.create_task(communicator.join(), name=f"{communicator_name}.join"))
+        try:
+            while running:
+                _print_tasks(self._loop, "WAITING FOR", tasks=running)
+                done, running = await asyncio.wait(running, return_when="FIRST_COMPLETED", loop=self._loop)
+                # _print_tasks(self._loop, "WAITED")
+                _print_tasks(self._loop, tag="DONE", tasks=done)
+                _print_tasks(self._loop, tag="PENDING", tasks=running)
+                for task in done:
+                    print("")
+                    if exception := task.exception():
+                        print(f"EXCEPTION in task {task.get_name()}  {exception}")
+                        traceback.print_tb(exception.__traceback__)
+        except Exception as e:
+            print(f"ERROR in Proactor.join: {e}")
+            traceback.print_tb(e.__traceback__)
+        print("--Proactor.join()")
 
     def publish(self, client: str, topic: str, payload: bytes, qos: int):
         self._mqtt_clients.publish(client, topic, payload, qos)

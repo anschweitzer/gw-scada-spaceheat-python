@@ -1,7 +1,7 @@
 """Message structures for use between proactor and its sub-objects."""
 
 from enum import Enum
-from typing import Any, Optional, TypeVar, Generic, Dict
+from typing import Any, Optional, TypeVar, Generic, Dict, List
 
 from paho.mqtt.client import MQTTMessage
 from pydantic import BaseModel
@@ -16,6 +16,7 @@ class MessageType(Enum):
     mqtt_disconnected = "mqtt_disconnected"
     mqtt_connect_failed = "mqtt_connect_failed"
 
+    mqtt_suback = "mqtt_suback"
 
 class KnownNames(Enum):
     proactor = "proactor"
@@ -97,6 +98,30 @@ class MQTTReceiptMessage(MQTTClientMessage[MQTTReceiptPayload]):
             ),
         )
 
+class MQTTSubackPayload(MQTTClientsPayload):
+    mid: int
+    granted_qos: List[int]
+    num_pending_subscriptions: int
+
+class MQTTSubackMessage(MQTTClientMessage[MQTTSubackPayload]):
+    def __init__(
+        self,
+        client_name: str,
+        userdata: Optional[Any],
+        mid: int,
+        granted_qos: List[int],
+        num_pending_subscriptions: int,
+    ):
+        super().__init__(
+            message_type=MessageType.mqtt_suback,
+            payload=MQTTSubackPayload(
+                client_name=client_name,
+                userdata=userdata,
+                mid=mid,
+                granted_qos=granted_qos,
+                num_pending_subscriptions=num_pending_subscriptions,
+            ),
+        )
 
 class MQTTCommEventPayload(MQTTClientsPayload):
     rc: int
@@ -104,6 +129,7 @@ class MQTTCommEventPayload(MQTTClientsPayload):
 
 class MQTTConnectPayload(MQTTCommEventPayload):
     flags: Dict
+
 
 
 class MQTTConnectMessage(MQTTClientMessage[MQTTConnectPayload]):

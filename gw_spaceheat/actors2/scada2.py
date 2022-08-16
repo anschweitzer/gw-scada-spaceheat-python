@@ -12,7 +12,7 @@ from paho.mqtt.client import MQTTMessageInfo
 from actors.scada import ScadaCmdDiagnostic
 from actors.utils import QOS
 from actors2.actor_interface import ActorInterface
-from actors2.message import GtDispatchBooleanLocalMessage
+from actors2.message import GtDispatchBooleanLocalMessage, ScadaDBGPing, ShowSubscriptions
 from actors2.nodes import Nodes
 from actors2.scada_data import ScadaData
 from actors2.scada_interface import ScadaInterface
@@ -98,6 +98,8 @@ class Scada2(ScadaInterface, Proactor):
         # TODO: take care of subscriptions better. They should be registered here and only subscribed on connect.
         self._mqtt_clients.subscribe(Scada2.GRIDWORKS_MQTT, f"{self._nodes.atn_g_node_alias}/{GtDispatchBoolean_Maker.type_alias}", QOS.AtMostOnce)
         self._mqtt_clients.subscribe(Scada2.GRIDWORKS_MQTT, f"{self._nodes.atn_g_node_alias}/{GtShCliAtnCmd_Maker.type_alias}", QOS.AtMostOnce)
+        # TODO: clean this up
+        self.print_subsriptions("construction")
         now = int(time.time())
         self._last_status_second = int(now - (now % self.settings.seconds_per_report))
         self._scada_atn_fast_dispatch_contract_is_alive_stub = False
@@ -107,7 +109,7 @@ class Scada2(ScadaInterface, Proactor):
             self._add_communicator(actor)
 
     def _start_derived_tasks(self):
-        self._tasks.extend([asyncio.create_task(self.update_status())])
+        self._tasks.extend([asyncio.create_task(self.update_status(), name="update_status")])
 
     async def update_status(self):
         while not self._stop_requested:
@@ -171,7 +173,7 @@ class Scada2(ScadaInterface, Proactor):
     async def _derived_process_message(self, message: Message):
         print(f"++Scada2._derived_process_message {message.header.src}/{message.header.message_type}")
         path_dbg = 0
-        from_node = ShNode.by_alias[message.header.src]
+        from_node = ShNode.by_alias.get(message.header.src, None)
         if isinstance(message.payload, GsPwr):
             path_dbg |= 0x00000001
             if from_node is Nodes.power_meter_node():
@@ -205,11 +207,28 @@ class Scada2(ScadaInterface, Proactor):
             if from_node in Nodes.my_boolean_actuators():
                 path_dbg |= 0x00000200
                 self.gt_driver_booleanactuator_cmd_record_received(from_node, message.payload)
+        # TODO: Replace these with generalized debug message
+        elif isinstance(message.payload, ScadaDBGPing):
+            path_dbg |= 0x00000400
+            print(f"Got ScadaPing {message}")
+        elif isinstance(message.payload, ShowSubscriptions):
+            path_dbg |= 0x00000800
+            print(f"Got ShowSubscriptions {message}")
+            self.print_subsriptions("message")
         else:
             raise ValueError(
                 f"There is not handler for mqtt message payload type [{type(message.payload)}]"
             )
         print(f"--Scada2._derived_process_message  path:0x{path_dbg:08X}")
+
+    # TODO: Clean this up
+    # noinspection PyProtectedMember
+    def print_subsriptions(self, tag = ""):
+        print(f"Scada2 subscriptions: [{tag}]")
+        for client in self._mqtt_clients._clients:
+            print(f"\t{client}")
+            for subscription in self._mqtt_clients._clients[client]._subscriptions:
+                print(f"\t\t[{subscription}]")
 
     async def _derived_process_mqtt_message(self, message: Message[MQTTReceiptPayload], decoded: Any):
         print(f"++Scada2._derived_process_mqtt_message {message.payload.message.topic}")

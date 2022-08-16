@@ -5,8 +5,8 @@ import functools
 import queue
 import threading
 import time
+import traceback
 from abc import ABC
-from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Any, Optional
 
 from actors.utils import responsive_sleep
@@ -139,14 +139,9 @@ class SyncAsyncInteractionThread(threading.Thread, ABC):
             end = time.time() + timeout
         else:
             end = None
-        with ThreadPoolExecutor(1) as executor:
-            while not self.is_alive():
-                # TODO: This is a hack.
-                if end is not None and end > time.time():
-                    await asyncio.sleep(.01)
-            if end is not None:
-                remaining = end - time.time()
-            else:
-                remaining = None
-            if remaining is None or remaining > 0:
-                await asyncio.get_event_loop().run_in_executor(executor, functools.partial(self.join, timeout=remaining))
+        if end is not None:
+            remaining = end - time.time()
+        else:
+            remaining = None
+        if remaining is None or remaining > 0:
+            await asyncio.get_event_loop().run_in_executor(None, functools.partial(self.join, timeout=remaining))

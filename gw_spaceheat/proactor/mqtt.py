@@ -8,17 +8,16 @@ Main current limitation: each interaction between asyncio code and the mqtt clie
 """
 
 import uuid
-from collections import defaultdict
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Set
 
-from paho.mqtt.client import Client as PahoMQTTClient, MQTTMessageInfo
+from paho.mqtt.client import Client as PahoMQTTClient, MQTTMessageInfo, MQTT_ERR_SUCCESS
 
 import config
 from proactor.message import (
     MQTTReceiptMessage,
     MQTTConnectMessage,
     MQTTConnectFailMessage,
-    MQTTDisconnectMessage,
+    MQTTDisconnectMessage, MQTTSubackMessage,
 )
 from proactor.sync_thread import AsyncQueueWriter
 
@@ -28,6 +27,8 @@ class MQTTClientWrapper:
     _client: PahoMQTTClient
     _receive_queue: AsyncQueueWriter
     _subscriptions: Dict[str, int]
+    _pending_subscriptions: Set[str]
+    _pending_subacks: Dict[int, List[str]]
 
     def __init__(
         self,
@@ -47,7 +48,10 @@ class MQTTClientWrapper:
         self._client.on_connect = self.on_connect
         self._client.on_connect_fail = self.on_connect_fail
         self._client.on_disconnect = self.on_disconnect
+        self._client.on_subscribe = self.on_subscribe
         self._subscriptions = dict()
+        self._pending_subscriptions = set()
+        self._pending_subacks = dict()
 
     def start(self):
         self._client.connect(self._client_config.host, port=self._client_config.port)
@@ -62,15 +66,40 @@ class MQTTClientWrapper:
 
     def subscribe(self, topic: str, qos: int) -> Tuple[int, Optional[int]]:
         self._subscriptions[topic] = qos
-        return self._client.subscribe(topic, qos)
+        self._pending_subscriptions.add(topic)
+        subscribe_result = self._client.subscribe(topic, qos)
+        if subscribe_result[0] == MQTT_ERR_SUCCESS:
+            self._pending_subacks[subscribe_result[1]] = [topic]
+        return subscribe_result
+
 
     def subscribe_all(self) -> Tuple[int, Optional[int]]:
         if self._subscriptions:
-            return self._client.subscribe(list(self._subscriptions.items()), 0)
+            topics = list(self._subscriptions.keys())
+            for topic in topics:
+                self._pending_subscriptions.add(topic)
+            subscribe_result = self._client.subscribe(list(self._subscriptions.items()), 0)
+            if subscribe_result[0] == MQTT_ERR_SUCCESS:
+                self._pending_subacks[subscribe_result[1]] = topics
+        else:
+            subscribe_result = MQTT_ERR_SUCCESS, None
+        return  subscribe_result
 
     def unsubscribe(self, topic: str) -> Tuple[int, Optional[int]]:
         self._subscriptions.pop(topic, None)
         return self._client.unsubscribe(topic)
+
+    def connected(self) -> bool:
+        return self._client.is_connected()
+
+    def num_subscriptions(self) -> int:
+        return len(self._subscriptions)
+
+    def num_pending_subscriptions(self) -> int:
+        return len(self._pending_subscriptions)
+
+    def subscribed(self) -> bool:
+        return self.connected() and (not self.num_subscriptions() or not self.num_pending_subscriptions())
 
     def on_message(self, _, userdata, message):
         self._receive_queue.put(
@@ -80,6 +109,21 @@ class MQTTClientWrapper:
                 message=message,
             )
         )
+
+    def on_subscribe(self, _, userdata, mid, granted_qos):
+        topics = self._pending_subacks.pop(mid, [])
+        if topics:
+            for topic in topics:
+                self._pending_subscriptions.remove(topic)
+            self._receive_queue.put(
+                MQTTSubackMessage(
+                    client_name=self.name,
+                    userdata=userdata,
+                    mid=mid,
+                    granted_qos=granted_qos,
+                    num_pending_subscriptions=len(self._pending_subscriptions)
+                )
+            )
 
     def on_connect(self, _, userdata, flags, rc):
         self._receive_queue.put(
@@ -100,6 +144,7 @@ class MQTTClientWrapper:
         )
 
     def on_disconnect(self, _, userdata, rc):
+        self._pending_subscriptions = set(self._subscriptions.keys())
         self._receive_queue.put(
             MQTTDisconnectMessage(
                 client_name=self.name,
@@ -111,12 +156,10 @@ class MQTTClientWrapper:
 class MQTTClients:
     _clients: Dict[str, MQTTClientWrapper]
     _send_queue: AsyncQueueWriter
-    _subscriptions: Dict[str, List[Tuple[str, int]]]
 
     def __init__(self, async_queue_writer: AsyncQueueWriter):
         self._send_queue = async_queue_writer
         self._clients = dict()
-        self._subscriptions = defaultdict(list)
 
     def add_client(
         self,
@@ -148,3 +191,15 @@ class MQTTClients:
     def start(self):
         for client in self._clients.values():
             client.start()
+
+    def connected(self, client: str) -> bool:
+        return self._clients[client].connected()
+
+    def num_subscriptions(self, client: str) -> int:
+        return self._clients[client].num_subscriptions()
+
+    def num_pending_subscriptions(self, client: str) -> int:
+        return self._clients[client].num_pending_subscriptions()
+
+    def subscribed(self, client: str) -> bool:
+        return self._clients[client].subscribed()

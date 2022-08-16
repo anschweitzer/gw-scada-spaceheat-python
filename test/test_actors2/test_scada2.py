@@ -1,14 +1,16 @@
 """Test Scada2"""
 import asyncio
-import signal
-import threading
+import logging
 import time
 import typing
+
+import pytest
 
 import actors2
 import load_house
 from actors.scada import ScadaCmdDiagnostic
 from actors2 import Scada2
+from actors2.message import ShowSubscriptionsMessage
 from actors2.nodes import Nodes
 from config import ScadaSettings
 from data_classes.sh_node import ShNode
@@ -26,7 +28,7 @@ from schema.gt.gt_sh_multipurpose_telemetry_status.gt_sh_multipurpose_telemetry_
 from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status import (
     GtShSimpleTelemetryStatus,
 )
-from test.utils import AtnRecorder, wait_for
+from test.utils import AtnRecorder, await_for
 
 
 def test_scada_small():
@@ -109,69 +111,49 @@ def test_scada_small():
     scada._last_status_second = int(time.time() - 400)
     assert scada.time_to_send_status() is True
 
-
-def test_scada2_relay_dispatch(tmp_path, monkeypatch):
+@pytest.mark.asyncio
+async def test_scada2_relay_dispatch(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
+    logging.basicConfig(level="DEBUG")
     debug_logs_path = tmp_path / "output/debug_logs"
     debug_logs_path.mkdir(parents=True, exist_ok=True)
     settings = ScadaSettings(logging_on=True, log_message_summary=True)
     load_house.load_all(settings.world_root_alias)
     atn = AtnRecorder(node=ShNode.by_alias["a"], settings=settings)
-    loop = asyncio.new_event_loop()
-    scada2 = Scada2(ShNode.by_alias["a.s"], settings, actors=dict(), loop=loop)
-    for signal_ in signal.SIGHUP, signal.SIGTERM, signal.SIGINT:
-        loop.add_signal_handler(
-            signal_, lambda s=signal_: asyncio.create_task(scada2.stop_and_join()))
+    scada2 = Scada2(ShNode.by_alias["a.s"], settings, actors=dict())
     relay_alias = "a.elt1.relay"
     relay_node = ShNode.by_alias[relay_alias]
-    print(f"1... {id(loop)}")
-    def run_asyncio():
-        print("++run_asyncio")
-        async def async_main():
-            try:
-                relay2 = actors2.BooleanActuator(node=relay_node, services=scada2)
-                # noinspection PyProtectedMember
-                scada2._add_communicator(relay2)
-
-                scada2._scada_atn_fast_dispatch_contract_is_alive_stub = True
-                # TODO: Work out how this fits with run_forever()
-
-                # TODO: Work out how this fits with run_forever()
-                scada2.start()
-                await scada2.run_forever()
-            except Exception as e:
-                print(f"ERROR: {e}")
-                import traceback
-                traceback.print_exc()
-            finally:
-                await scada2.stop_and_join()
-        loop.run_until_complete(async_main())
-        print("--run_asyncio")
-
-    asyncio_thread = threading.Thread(target=run_asyncio, daemon=True)
-
+    relay2 = actors2.BooleanActuator(node=relay_node, services=scada2)
+    # TODO: There should be some test-public way to do this
+    # noinspection PyProtectedMember
+    scada2._add_communicator(relay2)
+    scada2._scada_atn_fast_dispatch_contract_is_alive_stub = True
+    # TODO: Work out how this fits with run_forever()
+    scada2.start()
+    run_forever = asyncio.create_task(scada2.run_forever(), name="run_forever")
     try:
-        asyncio_thread.start()
         atn.start()
-        wait_for(
+        await await_for(
             atn.gw_client.is_connected,
             1,
-            "ERROR waiting for atn connect",
-        )
-        # TODO provide clean test access
-        wait_for(
-            scada2._mqtt_clients._clients[scada2.GRIDWORKS_MQTT]._client.is_connected,
-            3,
-            "ERROR waiting for scada connect",
+            "waiting for atn connect",
         )
 
+        # TODO provide clean test access
+        await await_for(
+            lambda: scada2._mqtt_clients.subscribed(scada2.GRIDWORKS_MQTT),
+            3,
+            "waiting for scada connect",
+        )
+        scada2.send_threadsafe(ShowSubscriptionsMessage())
+
         # Verify relay is off
-        atn.status()
         assert atn.latest_snapshot_payload is None
-        wait_for(
+        atn.status()
+        await await_for(
             lambda : atn.latest_snapshot_payload is not None,
             3,
-            "atn did not receive status"
+            "atn did not receive first status"
         )
         snapshot1: SnapshotSpaceheat = typing.cast(SnapshotSpaceheat, atn.latest_snapshot_payload)
         assert isinstance(snapshot1, SnapshotSpaceheat)
@@ -183,36 +165,33 @@ def test_scada2_relay_dispatch(tmp_path, monkeypatch):
         # turn relay on
         atn.turn_on(relay_node)
 
-        # TODO: giant hack
-        time.sleep(3)
+        await await_for(
+            lambda : scada2._data.recent_simple_values[relay_node] is not None,
+            3,
+            "scada did not receive update from relay"
+        )
 
         # Check relay state
         atn.status()
-        wait_for(
+        await await_for(
             lambda : atn.latest_snapshot_payload is not None and id(atn.latest_snapshot_payload) != id(snapshot1),
             3,
             "atn did not receive status"
         )
-        snapshot2 = atn.latest_snapshot_payload
-        assert isinstance(snapshot2, SnapshotSpaceheat)
-        assert relay_alias in snapshot2.Snapshot.AboutNodeAliasList, f"ERROR relay [{relay_alias}] not in {snapshot2.Snapshot.AboutNodeAliasList}"
-        relay_idx = snapshot2.Snapshot.AboutNodeAliasList.index(relay_alias)
-        relay_value = snapshot2.Snapshot.ValueList[relay_idx]
-        assert relay_value == 1
-
-
-
     finally:
         # noinspection PyBroadException
         try:
-            scada2.stop()
+            await scada2.stop_and_join()
         except:
             pass
+
         # noinspection PyBroadException
         try:
-            asyncio_thread.join(timeout=5)
+            if not run_forever.done():
+                run_forever.cancel()
         except:
             pass
+
         # noinspection PyBroadException
         try:
             atn.stop()

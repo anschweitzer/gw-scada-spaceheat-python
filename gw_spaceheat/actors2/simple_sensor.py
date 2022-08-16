@@ -61,7 +61,7 @@ class SimpleSensorDriverThread(SyncAsyncInteractionThread):
     def report_telemetry(self) -> None:
         """Publish the telemetry value, using exponent and telemetry_name from
         self.config.reporting"""
-        if self._telemetry_value is not None:
+        if self.running and self._telemetry_value is not None:
             now_seconds = time.time()
             self._put_to_async_queue(
                 GtTelemetryMessage(
