@@ -1,16 +1,13 @@
 """Test Scada2"""
-import asyncio
 import logging
 import time
 import typing
 
 import pytest
 
-import actors2
 import load_house
 from actors.scada import ScadaCmdDiagnostic
 from actors2 import Scada2
-from actors2.message import ShowSubscriptionsMessage
 from actors2.nodes import Nodes
 from config import ScadaSettings
 from data_classes.sh_node import ShNode
@@ -21,14 +18,14 @@ from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status
 )
 from schema.gt.snapshot_spaceheat.snapshot_spaceheat_maker import SnapshotSpaceheat
 
-
 from schema.gt.gt_sh_multipurpose_telemetry_status.gt_sh_multipurpose_telemetry_status import (
     GtShMultipurposeTelemetryStatus,
 )
 from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status import (
     GtShSimpleTelemetryStatus,
 )
-from test.utils import AtnRecorder, await_for
+from test.fragment_runner import ProtocolFragment, FragmentRunner
+from test.utils import await_for
 
 
 def test_scada_small():
@@ -113,96 +110,156 @@ def test_scada_small():
 
 @pytest.mark.asyncio
 async def test_scada2_relay_dispatch(tmp_path, monkeypatch):
+    """Verify Scada forwards relay dispatch from Atn to relay and that resulting state changes in the relay are
+    included in next status and shapshot"""
+
     monkeypatch.chdir(tmp_path)
     logging.basicConfig(level="DEBUG")
     debug_logs_path = tmp_path / "output/debug_logs"
     debug_logs_path.mkdir(parents=True, exist_ok=True)
-    settings = ScadaSettings(logging_on=True, log_message_summary=True)
-    load_house.load_all(settings.world_root_alias)
-    atn = AtnRecorder(node=ShNode.by_alias["a"], settings=settings)
-    scada2 = Scada2(ShNode.by_alias["a.s"], settings, actors=dict())
-    relay_alias = "a.elt1.relay"
-    relay_node = ShNode.by_alias[relay_alias]
-    relay2 = actors2.BooleanActuator(node=relay_node, services=scada2)
-    # TODO: There should be some test-public way to do this
-    # noinspection PyProtectedMember
-    scada2._add_communicator(relay2)
-    scada2._scada_atn_fast_dispatch_contract_is_alive_stub = True
-    # TODO: Work out how this fits with run_forever()
-    scada2.start()
-    run_forever = asyncio.create_task(scada2.run_forever(), name="run_forever")
-    try:
-        atn.start()
-        await await_for(
-            atn.gw_client.is_connected,
-            1,
-            "waiting for atn connect",
-        )
 
-        # TODO provide clean test access
-        await await_for(
-            lambda: scada2._mqtt_clients.subscribed(scada2.GRIDWORKS_MQTT),
-            3,
-            "waiting for scada connect",
-        )
-        scada2.send_threadsafe(ShowSubscriptionsMessage())
+    class Fragment(ProtocolFragment):
 
-        # Verify relay is off
-        assert atn.latest_snapshot_payload is None
-        atn.status()
-        await await_for(
-            lambda : atn.latest_snapshot_payload is not None,
-            3,
-            "atn did not receive first status"
-        )
-        snapshot1: SnapshotSpaceheat = typing.cast(SnapshotSpaceheat, atn.latest_snapshot_payload)
-        assert isinstance(snapshot1, SnapshotSpaceheat)
-        if snapshot1.Snapshot.AboutNodeAliasList:
-            relay_idx = snapshot1.Snapshot.AboutNodeAliasList.index(relay_alias)
-            relay_value = snapshot1.Snapshot.ValueList[relay_idx]
-            assert relay_value is None or relay_value == 0
-        assert (
-            relay_node not in scada2._data.latest_simple_value or
-            scada2._data.latest_simple_value[relay_node] != 1
-        )
+        def __init__(self, runner_: FragmentRunner):
+            runner_.actors.scada2._scada_atn_fast_dispatch_contract_is_alive_stub = True
+            runner_.actors.scada2._last_status_second = int(time.time())
+            super().__init__(runner_)
 
-        atn.turn_on(relay_node)
-        await await_for(
-            lambda : scada2._data.latest_simple_value[relay_node] == 1,
-            3,
-            "scada did not receive update from relay"
-        )
+        def get_requested_actors(self):
+            return [self.runner.actors.scada2, self.runner.actors.atn]
 
-        # Check relay state
-        atn.status()
-        await await_for(
-            lambda : atn.latest_snapshot_payload is not None and id(atn.latest_snapshot_payload) != id(snapshot1),
-            3,
-            "atn did not receive status"
-        )
-        snapshot2 = atn.latest_snapshot_payload
-        assert isinstance(snapshot2, SnapshotSpaceheat)
-        assert relay_alias in snapshot2.Snapshot.AboutNodeAliasList, f"ERROR relay [{relay_alias}] not in {snapshot2.Snapshot.AboutNodeAliasList}"
-        relay_idx = snapshot2.Snapshot.AboutNodeAliasList.index(relay_alias)
-        relay_value = snapshot2.Snapshot.ValueList[relay_idx]
-        assert relay_value == 1
+        def get_requested_actors2(self):
+            return [self.runner.actors.relay2]
 
-    finally:
-        # noinspection PyBroadException
-        try:
-            await scada2.stop_and_join()
-        except:
-            pass
+        async def async_run(self):
+            atn = self.runner.actors.atn
+            relay2 = self.runner.actors.relay2
+            scada2 = self.runner.actors.scada2
+            relay_alias = relay2.alias
+            relay_node = relay2.node
 
-        # noinspection PyBroadException
-        try:
-            if not run_forever.done():
-                run_forever.cancel()
-        except:
-            pass
+            # Verify scada status and snapshot are emtpy
+            # TODO: Test public interface
+            status = scada2._data.make_status(int(time.time()))
+            snapshot = scada2._data.make_snapshot()
+            assert len(status.SimpleTelemetryList) == 0
+            assert len(status.BooleanactuatorCmdList) == 0
+            assert len(status.MultipurposeTelemetryList) == 0
+            assert len(snapshot.Snapshot.TelemetryNameList) == 0
+            assert len(snapshot.Snapshot.AboutNodeAliasList) == 0
+            assert len(snapshot.Snapshot.ValueList) == 0
 
-        # noinspection PyBroadException
-        try:
-            atn.stop()
-        except:
-            pass
+            # TODO: Add ScadaRecorder functionality for Scada2
+            # relay_state_topic = f"{relay2.alias}/gt.telemetry.110"
+            # relay_command_received_topic = f"{relay.alias}/gt.driver.booleanactuator.cmd.100"
+            # assert scada.num_received_by_topic[relay_state_topic] == 0
+            # assert scada.num_received_by_topic[relay_command_received_topic] == 0
+
+
+            # TODO: After ScadaRecorder functionality, for test determinism, verify scada has received
+            #       initial report from relay.
+            # Start the relay and verify it reports its initial state
+            # wait_for(
+            #     lambda: scada.num_received_by_topic[relay_state_topic] == 1,
+            #     5,
+            #     "Scada wait for relay state change"
+            # )
+            # status = scada.make_status()
+            # assert len(status.SimpleTelemetryList) == 1
+            # assert status.SimpleTelemetryList[0].ValueList == [0]
+            # assert status.SimpleTelemetryList[0].ShNodeAlias == relay.node.alias
+            # assert status.SimpleTelemetryList[0].TelemetryName == TelemetryName.RELAY_STATE
+
+            # Verify relay is off
+            assert atn.latest_snapshot_payload is None
+            atn.status()
+            await await_for(
+                lambda : atn.latest_snapshot_payload is not None,
+                3,
+                "atn did not receive first status"
+            )
+            snapshot1: SnapshotSpaceheat = typing.cast(SnapshotSpaceheat, atn.latest_snapshot_payload)
+            assert isinstance(snapshot1, SnapshotSpaceheat)
+            if snapshot1.Snapshot.AboutNodeAliasList:
+                relay_idx = snapshot1.Snapshot.AboutNodeAliasList.index(relay_alias)
+                relay_value = snapshot1.Snapshot.ValueList[relay_idx]
+                assert relay_value is None or relay_value == 0
+            assert (
+                relay_node not in scada2._data.latest_simple_value or
+                scada2._data.latest_simple_value[relay_node] != 1
+            )
+
+            # Turn on relay
+            atn.turn_on(relay_node)
+            await await_for(
+                lambda : scada2._data.latest_simple_value[relay_node] == 1,
+                3,
+                "scada did not receive update from relay"
+            )
+            status = scada2._data.make_status(int(time.time()))
+            assert len(status.SimpleTelemetryList) == 1
+            assert status.SimpleTelemetryList[0].ValueList == [0, 1]
+            assert status.SimpleTelemetryList[0].ShNodeAlias == relay2.alias
+            assert status.SimpleTelemetryList[0].TelemetryName == TelemetryName.RELAY_STATE
+            assert len(status.BooleanactuatorCmdList) == 1
+            assert status.BooleanactuatorCmdList[0].RelayStateCommandList == [1]
+            assert status.BooleanactuatorCmdList[0].ShNodeAlias == relay2.alias
+
+
+            # Verify Atn gets updated info for relay
+            atn.status()
+            await await_for(
+                lambda : atn.latest_snapshot_payload is not None and id(atn.latest_snapshot_payload) != id(snapshot1),
+                3,
+                "atn did not receive status"
+            )
+            snapshot2 = atn.latest_snapshot_payload
+            assert isinstance(snapshot2, SnapshotSpaceheat)
+            assert relay_alias in snapshot2.Snapshot.AboutNodeAliasList, f"ERROR relay [{relay_alias}] not in {snapshot2.Snapshot.AboutNodeAliasList}"
+            relay_idx = snapshot2.Snapshot.AboutNodeAliasList.index(relay_alias)
+            relay_value = snapshot2.Snapshot.ValueList[relay_idx]
+            assert relay_value == 1
+
+            # Cause scada to send a status (and snapshot) now
+
+            # TODO: Test way to trick Scada into sending status now. The send_status task is currently asleep.
+            # scada2._last_status_second -= 299
+            #
+            # # TODO: Test-public access for topics
+            # # Verify Atn got status and snapshot
+            # print(atn.num_received_by_topic[f"{scada2._nodes.scada_g_node_alias}/{GtShStatus_Maker.type_alias}"])
+            # await await_for(
+            #     lambda: atn.num_received_by_topic[f"{scada2._nodes.scada_g_node_alias}/{GtShStatus_Maker.type_alias}"] == 1,
+            #     5,
+            #     "Atn wait for status message"
+            # )
+            # await await_for(
+            #     lambda: atn.num_received_by_topic[f"{scada2._nodes.scada_g_node_alias}/{SnapshotSpaceheat_Maker.type_alias}"] == 1,
+            #     5,
+            #     "Atn wait for snapshot message"
+            # )
+            #
+            # # Verify contents of status and snapshot are as expected
+            # status = atn.latest_status_payload
+            # assert isinstance(status, GtShStatus)
+            # assert len(status.SimpleTelemetryList) == 1
+            # assert status.SimpleTelemetryList[0].ValueList == [0, 1]
+            # assert status.SimpleTelemetryList[0].ShNodeAlias == relay2.alias
+            # assert status.SimpleTelemetryList[0].TelemetryName == TelemetryName.RELAY_STATE
+            # assert len(status.BooleanactuatorCmdList) == 1
+            # assert status.BooleanactuatorCmdList[0].RelayStateCommandList == [1]
+            # assert status.BooleanactuatorCmdList[0].ShNodeAlias == relay2.alias
+            # snapshot = atn.latest_snapshot_payload
+            # assert isinstance(snapshot, SnapshotSpaceheat)
+            # assert snapshot.Snapshot.AboutNodeAliasList == [relay2.alias]
+            # assert snapshot.Snapshot.ValueList == [1]
+            #
+            # # # Verify scada has cleared its state
+            # # status = scada.make_status()
+            # # assert len(status.SimpleTelemetryList) == 0
+            # # assert len(status.BooleanactuatorCmdList) == 0
+            # # assert len(status.MultipurposeTelemetryList) == 0
+
+
+    await FragmentRunner.async_run_fragment(Fragment)
+
