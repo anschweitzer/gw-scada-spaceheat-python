@@ -10,6 +10,12 @@ from proactor.proactor_interface import CommunicatorInterface, Runnable, Service
 
 
 class ActorInterface(CommunicatorInterface, Runnable, ABC):
+
+    @property
+    @abstractmethod
+    def alias(self) -> str:
+        pass
+
     @property
     @abstractmethod
     def node(self) -> ShNode:

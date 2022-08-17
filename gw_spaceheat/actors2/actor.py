@@ -13,6 +13,7 @@ class Actor(ActorInterface, Communicator, ABC):
     _node: ShNode
 
     def __init__(self, node: ShNode, services: ScadaInterface):
+        self._node = node
         super().__init__(node.alias, services)
 
     @property
@@ -23,6 +24,7 @@ class Actor(ActorInterface, Communicator, ABC):
     def alias(self):
         return self._name
 
+    @property
     def node(self):
         return self._node
 
