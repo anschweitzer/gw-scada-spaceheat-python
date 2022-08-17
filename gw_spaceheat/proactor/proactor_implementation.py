@@ -198,7 +198,7 @@ class Proactor(ServicesInterface, Runnable):
         self._stop_requested = True
         for task in self._tasks:
             if not task.done():
-                task.cancel(msg="Stop requested")
+                task.cancel()
         self.stop_mqtt()
         for communicator in self._communicators.values():
             if isinstance(communicator, Runnable):
