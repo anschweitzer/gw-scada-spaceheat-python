@@ -109,7 +109,7 @@ class Scada2(ScadaInterface, Proactor):
             self._add_communicator(actor)
 
     def _start_derived_tasks(self):
-        self._tasks.extend([asyncio.create_task(self.update_status(), name="update_status")])
+        self._tasks.append(asyncio.create_task(self.update_status(), name="update_status"))
 
     async def update_status(self):
         while not self._stop_requested:
