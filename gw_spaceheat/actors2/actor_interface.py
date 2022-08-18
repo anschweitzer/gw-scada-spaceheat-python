@@ -26,7 +26,7 @@ class ActorInterface(CommunicatorInterface, Runnable, ABC):
         if module_name not in sys.modules:
             importlib.import_module(module_name)
         actor_class = getattr(sys.modules[module_name], node.actor_class.value)
-        return actor_class(node, module_name=module_name)(node, services)
+        return actor_class(node, services)
 
     @classmethod
     def load_all(cls, services: ServicesInterface, module_name: str) -> Dict[str, "ActorInterface"]:
