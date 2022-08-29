@@ -81,8 +81,8 @@ class SyncAsyncInteractionThread(threading.Thread, ABC):
         channel: SyncAsyncQueueWriter,
         name: Optional[str] = None,
         iterate_sleep_seconds: Optional[float] = None,
-        responsive_sleep_step_seconds=SLEEP_STEP_SECONDS,
-        daemon: Optional[bool] = True,
+        responsive_sleep_step_seconds = SLEEP_STEP_SECONDS,
+        daemon: bool = True,
     ):
         super().__init__(name=name, daemon=daemon)
         self._channel = channel
@@ -106,11 +106,6 @@ class SyncAsyncInteractionThread(threading.Thread, ABC):
 
     def _put_to_async_queue(self, message: Any) -> None:
         self._channel.put_to_async_queue(message)
-
-    def _get_from_sync_queue(
-        self, block: bool = True, timeout: Optional[float] = None
-    ) -> Any:
-        return self._channel.get_from_sync_queue(block=block, timeout=timeout)
 
     def run(self):
         if self.running is None:
