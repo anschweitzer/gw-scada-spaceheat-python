@@ -81,7 +81,7 @@ class SyncAsyncInteractionThread(threading.Thread, ABC):
         channel: SyncAsyncQueueWriter,
         name: Optional[str] = None,
         iterate_sleep_seconds: Optional[float] = None,
-        responsive_sleep_step_seconds = SLEEP_STEP_SECONDS,
+        responsive_sleep_step_seconds=SLEEP_STEP_SECONDS,
         daemon: bool = True,
     ):
         super().__init__(name=name, daemon=daemon)
@@ -89,6 +89,9 @@ class SyncAsyncInteractionThread(threading.Thread, ABC):
         self._iterate_sleep_seconds = iterate_sleep_seconds
         self._responsive_sleep_step_seconds = responsive_sleep_step_seconds
         self.running = None
+
+    def _preiterate(self) -> None:
+        pass
 
     def _iterate(self) -> None:
         pass
@@ -110,23 +113,24 @@ class SyncAsyncInteractionThread(threading.Thread, ABC):
     def run(self):
         if self.running is None:
             self.running = True
-        while self.running:
-            if self._iterate_sleep_seconds is not None:
-                responsive_sleep(
-                    self,
-                    self._iterate_sleep_seconds,
-                    running_field_name="running",
-                    step_duration=self._responsive_sleep_step_seconds,
-                )
-            if self.running:
-                self._iterate()
-            if self.running and self._channel.sync_queue is not None:
-                try:
-                    message = self._channel.get_from_sync_queue(block=False)
-                    if self.running:
-                        self._handle_message(message)
-                except queue.Empty:
-                    pass
+            self._preiterate()
+            while self.running:
+                if self._iterate_sleep_seconds is not None:
+                    responsive_sleep(
+                        self,
+                        self._iterate_sleep_seconds,
+                        running_field_name="running",
+                        step_duration=self._responsive_sleep_step_seconds,
+                    )
+                if self.running:
+                    self._iterate()
+                if self.running and self._channel.sync_queue is not None:
+                    try:
+                        message = self._channel.get_from_sync_queue(block=False)
+                        if self.running:
+                            self._handle_message(message)
+                    except queue.Empty:
+                        pass
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
     async def async_join(self, timeout: float = None) -> None:
