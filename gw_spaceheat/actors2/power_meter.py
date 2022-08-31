@@ -1,3 +1,6 @@
+"""Implements PowerMeter via SyncThreadActor and PowerMeterDriverThread. A helper class, _DriverThreadSetupHelper,
+isolates code used only in PowerMeterDriverThread constructor. """
+
 import asyncio
 import time
 import typing

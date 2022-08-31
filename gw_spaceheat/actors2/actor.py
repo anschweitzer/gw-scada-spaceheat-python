@@ -1,4 +1,10 @@
-"""A partial implementation of ActorInterface which supplies the trivial implementations"""
+"""Actor: A partial implementation of ActorInterface which supplies the trivial implementations.
+
+SyncThreadActor: An actor which orchestrates starting, stopping and communicating with a passed in
+SyncAsyncInteractionThread
+"""
+
+
 from abc import ABC
 from typing import TypeVar, Generic, Any
 
