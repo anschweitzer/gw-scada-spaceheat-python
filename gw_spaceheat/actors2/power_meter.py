@@ -4,7 +4,7 @@ import typing
 from collections import OrderedDict
 from typing import Optional, Dict, List
 
-from actors2 import Nodes
+from actors2.nodes import Nodes
 from actors2.actor import SyncThreadActor
 from actors2.message import GsPwrMessage, MultipurposeSensorTelemetryMessage
 from actors2.scada_interface import ScadaInterface
@@ -139,7 +139,7 @@ class _DriverThreadSetupHelper:
             raise ValueError(
                 "This function should only be called for nodes that are boost elements"
             )
-        if isinstance(node.component, ResistiveHeaterComponent):
+        if not isinstance(node.component, ResistiveHeaterComponent):
             raise ValueError(
                 f"Node component has type {type(node.component)}. Requires type ResistiveHeaterComponent"
             )
@@ -373,6 +373,7 @@ class PowerMeter(SyncThreadActor):
         self,
         node: ShNode,
         services: ScadaInterface,
+        settings: Optional[ScadaSettings] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
     ):
 
@@ -381,7 +382,7 @@ class PowerMeter(SyncThreadActor):
             services=services,
             sync_thread=PowerMeterDriverThread(
                 node=node,
-                settings=services.settings,
+                settings=services.settings if settings is None else settings,
                 telemetry_destination=services.name,
                 channel=SyncAsyncQueueWriter(
                     loop=loop if loop is not None else asyncio.get_event_loop(),
