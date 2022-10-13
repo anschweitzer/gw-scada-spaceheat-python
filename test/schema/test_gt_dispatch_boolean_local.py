@@ -3,8 +3,8 @@ import json
 
 import pytest
 
-from schema.errors import MpSchemaError
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local_maker import (
+from gwproto0 import MpSchemaError
+from gwproto0 import (
     GtDispatchBooleanLocal_Maker as Maker,
 )
 

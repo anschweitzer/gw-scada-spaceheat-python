@@ -2,7 +2,7 @@
 from typing import Dict, Optional
 
 from data_classes.component_attribute_class import ComponentAttributeClass
-from schema.enums.telemetry_name.telemetry_name_map import TelemetryName
+from gwproto0.enums.telemetry_name.telemetry_name_map import TelemetryName
 from schema.enums.make_model.make_model_map import MakeModelMap
 
 

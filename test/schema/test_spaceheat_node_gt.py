@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.gt.spaceheat_node_gt.spaceheat_node_gt_maker import (
     SpaceheatNodeGt_Maker as Maker,
 )

@@ -1,6 +1,6 @@
 """gt.temp.sensor.cac.100 type"""
 
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.gt.gt_temp_sensor_cac.gt_temp_sensor_cac_base import (
     GtTempSensorCacBase,
 )

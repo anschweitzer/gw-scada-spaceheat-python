@@ -7,7 +7,7 @@ from config import ScadaSettings
 from data_classes.hardware_layout import HardwareLayout
 from data_classes.node_config import NodeConfig
 from data_classes.sh_node import ShNode
-from schema.gt.gt_telemetry.gt_telemetry_maker import GtTelemetry_Maker
+from gwproto0 import GtTelemetry_Maker
 
 
 class SimpleSensor(ActorBase):

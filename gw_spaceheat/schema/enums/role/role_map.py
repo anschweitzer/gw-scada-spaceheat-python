@@ -1,5 +1,5 @@
 from typing import Dict
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.enums.role.sh_node_role_110 import (
     Role,
     ShNodeRole110GtEnum,

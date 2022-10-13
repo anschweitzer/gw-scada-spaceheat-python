@@ -1,6 +1,6 @@
 """gt.heartbeat.a.100 type"""
 
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.gt.gt_heartbeat_a.gt_heartbeat_a_base import (
     GtHeartbeatABase,
 )

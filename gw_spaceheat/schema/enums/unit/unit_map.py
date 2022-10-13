@@ -1,5 +1,5 @@
 from typing import Dict
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.enums.unit.spaceheat_unit_100 import (
     Unit,
     SpaceheatUnit100GtEnum,

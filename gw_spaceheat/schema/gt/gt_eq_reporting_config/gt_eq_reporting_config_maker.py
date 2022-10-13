@@ -3,12 +3,12 @@ import json
 from typing import Optional
 
 from schema.gt.gt_eq_reporting_config.gt_eq_reporting_config import GtEqReportingConfig
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.enums.unit.unit_map import (
     Unit,
     UnitMap,
 )
-from schema.enums.telemetry_name.telemetry_name_map import (
+from gwproto0.enums.telemetry_name.telemetry_name_map import (
     TelemetryName,
     TelemetryNameMap,
 )

@@ -4,7 +4,7 @@ from typing import Optional
 from data_classes.components.boolean_actuator_component import BooleanActuatorComponent
 
 from schema.gt.gt_boolean_actuator_component.gt_boolean_actuator_component import GtBooleanActuatorComponent
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 
 
 class GtBooleanActuatorComponent_Maker:

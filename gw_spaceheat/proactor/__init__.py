@@ -14,7 +14,6 @@ Particular questions:
 * Test support should be implemented / cleaner.
 """
 
-from proactor.message import Header, Message
 from proactor.proactor_interface import (
     CommunicatorInterface,
     Communicator,
@@ -33,8 +32,6 @@ __all__ = [
     "AsyncQueueWriter",
     "Communicator",
     "CommunicatorInterface",
-    "Header",
-    "Message",
     "MQTTCodec",
     "Proactor",
     "ProactorLogger",

@@ -1,30 +1,29 @@
 from typing import Dict, List
-from .gt.telemetry_snapshot_spaceheat.telemetry_snapshot_spaceheat_maker import TelemetrySnapshotSpaceheat_Maker
 
 from schema.gs.gs_dispatch_maker import GsDispatch_Maker
-from schema.gs.gs_pwr_maker import GsPwr_Maker
-from schema.gt.gt_dispatch_boolean.gt_dispatch_boolean_maker import GtDispatchBoolean_Maker
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local_maker import (
+from gwproto0 import GsPwr_Maker
+from gwproto0 import GtDispatchBoolean_Maker
+from gwproto0 import (
     GtDispatchBooleanLocal_Maker,
 )
-from schema.gt.gt_driver_booleanactuator_cmd.gt_driver_booleanactuator_cmd_maker import (
+from gwproto0 import (
     GtDriverBooleanactuatorCmd_Maker,
 )
-from schema.gt.gt_sh_cli_atn_cmd.gt_sh_cli_atn_cmd_maker import GtShCliAtnCmd_Maker
-from schema.gt.telemetry_snapshot_spaceheat.telemetry_snapshot_spaceheat_maker import (
+from gwproto0 import GtShCliAtnCmd_Maker
+from gwproto0 import (
     TelemetrySnapshotSpaceheat_Maker
 )
 
 
-from schema.gt.gt_sh_status.gt_sh_status_maker import (
+from gwproto0 import (
     GtShStatus_Maker,
 )
 
-from schema.gt.snapshot_spaceheat.snapshot_spaceheat_maker import SnapshotSpaceheat_Maker
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor_maker import (
+from gwproto0 import SnapshotSpaceheat_Maker
+from gwproto0 import (
     GtShTelemetryFromMultipurposeSensor_Maker,
 )
-from schema.gt.gt_telemetry.gt_telemetry_maker import GtTelemetry_Maker
+from gwproto0 import GtTelemetry_Maker
 
 TypeMakerByAliasDict: Dict[str, GtTelemetry_Maker] = {}
 schema_makers: List[GtTelemetry_Maker] = [

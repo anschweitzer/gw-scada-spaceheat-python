@@ -26,7 +26,7 @@ from drivers.power_meter.unknown_power_meter_driver import UnknownPowerMeterDriv
 from named_tuples.telemetry_tuple import TelemetryTuple
 from schema.enums.make_model.spaceheat_make_model_100 import MakeModel
 from schema.enums.role.sh_node_role_110 import Role
-from schema.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
+from gwproto0.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
 from data_classes.component import Component
 from data_classes.component_attribute_class import ComponentAttributeClass
 from helpers import camel_to_snake

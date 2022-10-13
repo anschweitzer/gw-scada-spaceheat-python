@@ -12,30 +12,30 @@ from enum import Enum
 from pydantic import BaseModel, validator
 
 from logging_config import LoggerLevels
-from proactor.message import Message, Header, as_enum
-from schema.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
-from schema.gs.gs_pwr import GsPwr
-from schema.gs.gs_pwr_maker import GsPwr_Maker
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local import (
+from gwproto0 import Message, Header, as_enum
+from gwproto0.enums.telemetry_name.telemetry_name_map import TelemetryName
+from gwproto0 import GsPwr
+from gwproto0 import GsPwr_Maker
+from gwproto0 import (
     GtDispatchBooleanLocal,
 )
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local_maker import (
+from gwproto0 import (
     GtDispatchBooleanLocal_Maker,
 )
-from schema.gt.gt_driver_booleanactuator_cmd.gt_driver_booleanactuator_cmd import (
+from gwproto0 import (
     GtDriverBooleanactuatorCmd,
 )
-from schema.gt.gt_driver_booleanactuator_cmd.gt_driver_booleanactuator_cmd_maker import (
+from gwproto0 import (
     GtDriverBooleanactuatorCmd_Maker,
 )
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor import (
+from gwproto0 import (
     GtShTelemetryFromMultipurposeSensor,
 )
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor_maker import (
+from gwproto0 import (
     GtShTelemetryFromMultipurposeSensor_Maker,
 )
-from schema.gt.gt_telemetry.gt_telemetry import GtTelemetry
-from schema.gt.gt_telemetry.gt_telemetry_maker import GtTelemetry_Maker
+from gwproto0 import GtTelemetry
+from gwproto0 import GtTelemetry_Maker
 
 
 class GtTelemetryMessage(Message[GtTelemetry]):

@@ -14,8 +14,8 @@ from load_house import load_all
 from logging_config import LoggingSettings, LoggerLevels
 from logging_setup import setup_logging
 from named_tuples.telemetry_tuple import TelemetryTuple
-from schema.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
-from schema.gs.gs_pwr_maker import GsPwr_Maker
+from gwproto0.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
+from gwproto0 import GsPwr_Maker
 from test.fragment_runner import ProtocolFragment, AsyncFragmentRunner
 from test.utils import await_for
 

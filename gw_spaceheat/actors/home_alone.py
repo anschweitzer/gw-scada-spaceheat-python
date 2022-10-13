@@ -4,10 +4,10 @@ from typing import List, Optional
 from config import ScadaSettings
 from data_classes.hardware_layout import HardwareLayout
 from data_classes.sh_node import ShNode
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local_maker import (
+from gwproto0 import (
     GtDispatchBooleanLocal_Maker,
 )
-from schema.gt.gt_sh_status.gt_sh_status_maker import GtShStatus, GtShStatus_Maker
+from gwproto0 import GtShStatus, GtShStatus_Maker
 
 from actors.actor_base import ActorBase
 from actors.utils import QOS, Subscription, responsive_sleep

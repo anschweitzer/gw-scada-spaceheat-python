@@ -4,7 +4,7 @@ from typing import Optional
 from data_classes.components.pipe_flow_sensor_component import PipeFlowSensorComponent
 
 from schema.gt.gt_pipe_flow_sensor_component.gt_pipe_flow_sensor_component import GtPipeFlowSensorComponent
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 
 
 class GtPipeFlowSensorComponent_Maker:

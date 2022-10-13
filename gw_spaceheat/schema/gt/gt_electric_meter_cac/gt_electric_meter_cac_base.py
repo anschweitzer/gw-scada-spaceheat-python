@@ -1,7 +1,7 @@
 """Base for gt.electric.meter.cac.100"""
 import json
 from typing import List, NamedTuple, Optional
-import schema.property_format as property_format
+import gwproto0.property_format as property_format
 from schema.enums.local_comm_interface.local_comm_interface_map import (
     LocalCommInterface,
     LocalCommInterfaceMap,

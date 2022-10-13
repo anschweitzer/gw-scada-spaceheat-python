@@ -2,7 +2,7 @@
 from typing import List, NamedTuple
 import struct
 
-import schema.property_format as property_format
+import gwproto0.property_format as property_format
 
 
 class GsDispatchBase(NamedTuple):

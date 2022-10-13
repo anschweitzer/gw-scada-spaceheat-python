@@ -1,5 +1,5 @@
 """GridWorks serial message protocol GsPwr100 with MpAlias d"""
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.gs.gs_dispatch_base import GsDispatchBase
 
 

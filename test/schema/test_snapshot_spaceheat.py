@@ -3,8 +3,8 @@ import json
 
 import pytest
 
-from schema.errors import MpSchemaError
-from schema.gt.snapshot_spaceheat.snapshot_spaceheat_maker import (
+from gwproto0 import MpSchemaError
+from gwproto0 import (
     SnapshotSpaceheat_Maker as Maker,
 )
 

@@ -1,6 +1,6 @@
 """gt.boolean.actuator.component.100 type"""
 
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.gt.gt_boolean_actuator_component.gt_boolean_actuator_component_base import (
     GtBooleanActuatorComponentBase,
 )

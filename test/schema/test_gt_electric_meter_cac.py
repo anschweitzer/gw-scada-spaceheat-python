@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.gt.gt_electric_meter_cac.gt_electric_meter_cac_maker import (
     GtElectricMeterCac_Maker as Maker,
 )

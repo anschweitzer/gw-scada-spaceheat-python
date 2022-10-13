@@ -1,7 +1,7 @@
 """Base for resistive.heater.cac.gt.100"""
 import json
 from typing import List, NamedTuple, Optional
-import schema.property_format as property_format
+import gwproto0.property_format as property_format
 from schema.enums.make_model.make_model_map import (
     MakeModel,
     MakeModelMap,

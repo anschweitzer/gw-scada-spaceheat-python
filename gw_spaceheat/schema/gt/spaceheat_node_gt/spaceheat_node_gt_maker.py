@@ -4,7 +4,7 @@ from typing import Optional
 from data_classes.sh_node import ShNode
 
 from schema.gt.spaceheat_node_gt.spaceheat_node_gt import SpaceheatNodeGt
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.enums.role.role_map import (
     Role,
     RoleMap,

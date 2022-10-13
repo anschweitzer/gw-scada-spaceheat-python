@@ -3,8 +3,8 @@ import json
 
 import pytest
 
-from schema.errors import MpSchemaError
-from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status_maker import (
+from gwproto0 import MpSchemaError
+from gwproto0 import (
     GtShBooleanactuatorCmdStatus_Maker as Maker,
 )
 

@@ -1,6 +1,6 @@
 """gt.sh.simple.telemetry.status.100 type"""
 
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status_base import (
     GtShSimpleTelemetryStatusBase,
 )

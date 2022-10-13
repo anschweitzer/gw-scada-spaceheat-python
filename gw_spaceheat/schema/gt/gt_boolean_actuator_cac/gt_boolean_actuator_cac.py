@@ -1,6 +1,6 @@
 """gt.boolean.actuator.cac.100 type"""
 
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.gt.gt_boolean_actuator_cac.gt_boolean_actuator_cac_base import (
     GtBooleanActuatorCacBase,
 )

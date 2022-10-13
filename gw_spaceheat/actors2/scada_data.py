@@ -9,32 +9,32 @@ from data_classes.hardware_layout import HardwareLayout
 from data_classes.node_config import NodeConfig
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
-from schema.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
-from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status import (
+from gwproto0.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
+from gwproto0 import (
     GtShBooleanactuatorCmdStatus,
 )
-from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status_maker import (
+from gwproto0 import (
     GtShBooleanactuatorCmdStatus_Maker,
 )
-from schema.gt.gt_sh_multipurpose_telemetry_status.gt_sh_multipurpose_telemetry_status import (
+from gwproto0 import (
     GtShMultipurposeTelemetryStatus,
 )
-from schema.gt.gt_sh_multipurpose_telemetry_status.gt_sh_multipurpose_telemetry_status_maker import (
+from gwproto0 import (
     GtShMultipurposeTelemetryStatus_Maker,
 )
-from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status import (
+from gwproto0 import (
     GtShSimpleTelemetryStatus,
 )
-from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status_maker import (
+from gwproto0 import (
     GtShSimpleTelemetryStatus_Maker,
 )
-from schema.gt.gt_sh_status.gt_sh_status import GtShStatus
-from schema.gt.gt_sh_status.gt_sh_status_maker import GtShStatus_Maker
-from schema.gt.telemetry_snapshot_spaceheat.telemetry_snapshot_spaceheat_maker import (
+from gwproto0 import GtShStatus
+from gwproto0 import GtShStatus_Maker
+from gwproto0 import (
     TelemetrySnapshotSpaceheat,
     TelemetrySnapshotSpaceheat_Maker,
 )
-from schema.gt.snapshot_spaceheat.snapshot_spaceheat_maker import (
+from gwproto0 import (
     SnapshotSpaceheat,
     SnapshotSpaceheat_Maker,
 )

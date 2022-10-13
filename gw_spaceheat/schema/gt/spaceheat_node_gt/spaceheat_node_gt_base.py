@@ -1,7 +1,7 @@
 """Base for spaceheat.node.gt.100"""
 import json
 from typing import List, NamedTuple, Optional
-import schema.property_format as property_format
+import gwproto0.property_format as property_format
 from schema.enums.role.role_map import (
     Role,
     RoleMap,

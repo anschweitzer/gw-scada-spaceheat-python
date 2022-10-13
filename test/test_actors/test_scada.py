@@ -10,26 +10,26 @@ from actors.scada import Scada, ScadaCmdDiagnostic
 from config import ScadaSettings
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
-from schema.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
-from schema.gs.gs_pwr_maker import GsPwr_Maker
-from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status import (
+from gwproto0.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
+from gwproto0 import GsPwr_Maker
+from gwproto0 import (
     GtShBooleanactuatorCmdStatus,
 )
 
-from schema.gt.snapshot_spaceheat.snapshot_spaceheat import SnapshotSpaceheat
+from gwproto0 import SnapshotSpaceheat
 
-from schema.gt.gt_sh_multipurpose_telemetry_status.gt_sh_multipurpose_telemetry_status import (
+from gwproto0 import (
     GtShMultipurposeTelemetryStatus,
 )
-from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status import (
+from gwproto0 import (
     GtShSimpleTelemetryStatus,
 )
-from schema.gt.gt_sh_status.gt_sh_status import GtShStatus
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor_maker import (
+from gwproto0 import GtShStatus
+from gwproto0 import (
     GtShTelemetryFromMultipurposeSensor_Maker,
 )
-from schema.gt.gt_telemetry.gt_telemetry_maker import GtTelemetry_Maker
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local_maker import (
+from gwproto0 import GtTelemetry_Maker
+from gwproto0 import (
     GtDispatchBooleanLocal_Maker,
 )
 from test.fragment_runner import FragmentRunner, ProtocolFragment

@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.gt.gt_pipe_flow_sensor_cac.gt_pipe_flow_sensor_cac_maker import (
     GtPipeFlowSensorCac_Maker as Maker,
 )

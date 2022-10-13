@@ -4,7 +4,7 @@ import os
 import platform
 import time
 from typing import Optional
-import schema.property_format as property_format
+import gwproto0.property_format as property_format
 from data_classes.components.temp_sensor_component import TempSensorComponent
 from drivers.temp_sensor.temp_sensor_driver import TempSensorDriver
 from schema.enums.make_model.make_model_map import MakeModel

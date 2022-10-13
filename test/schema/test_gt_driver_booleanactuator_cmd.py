@@ -3,8 +3,8 @@ import json
 
 import pytest
 
-from schema.errors import MpSchemaError
-from schema.gt.gt_driver_booleanactuator_cmd.gt_driver_booleanactuator_cmd_maker import (
+from gwproto0 import MpSchemaError
+from gwproto0 import (
     GtDriverBooleanactuatorCmd_Maker as Maker,
 )
 

@@ -14,7 +14,7 @@ from data_classes.hardware_layout import HardwareLayout
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
 from schema.gs.gs_dispatch import GsDispatch
-from schema.gs.gs_pwr import GsPwr
+from gwproto0 import GsPwr
 from schema.schema_switcher import TypeMakerByAliasDict
 
 

@@ -4,7 +4,7 @@ from typing import Optional
 from data_classes.cacs.electric_meter_cac import ElectricMeterCac
 
 from schema.gt.gt_electric_meter_cac.gt_electric_meter_cac import GtElectricMeterCac
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.enums.local_comm_interface.local_comm_interface_map import (
     LocalCommInterface,
     LocalCommInterfaceMap,

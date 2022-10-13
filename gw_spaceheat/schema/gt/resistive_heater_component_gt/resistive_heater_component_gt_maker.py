@@ -4,7 +4,7 @@ from typing import Optional
 from data_classes.components.resistive_heater_component import ResistiveHeaterComponent
 
 from schema.gt.resistive_heater_component_gt.resistive_heater_component_gt import ResistiveHeaterComponentGt
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 
 
 class ResistiveHeaterComponentGt_Maker:

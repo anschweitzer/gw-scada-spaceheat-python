@@ -1,8 +1,8 @@
 """Base for gt.sh.simple.telemetry.status.100"""
 import json
 from typing import List, NamedTuple
-import schema.property_format as property_format
-from schema.enums.telemetry_name.telemetry_name_map import (
+import gwproto0.property_format as property_format
+from gwproto0.enums.telemetry_name.telemetry_name_map import (
     TelemetryName,
     TelemetryNameMap,
 )

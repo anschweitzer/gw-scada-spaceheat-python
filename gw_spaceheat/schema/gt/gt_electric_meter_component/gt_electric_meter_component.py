@@ -1,6 +1,6 @@
 """gt.electric.meter.component.100 type"""
 
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.gt.gt_electric_meter_component.gt_electric_meter_component_base import (
     GtElectricMeterComponentBase,
 )

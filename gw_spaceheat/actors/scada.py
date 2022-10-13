@@ -10,49 +10,49 @@ from data_classes.node_config import NodeConfig
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
 from schema.enums.role.role_map import Role
-from schema.gs.gs_pwr_maker import GsPwr, GsPwr_Maker
-from schema.gt.gt_dispatch_boolean.gt_dispatch_boolean_maker import (
+from gwproto0 import GsPwr, GsPwr_Maker
+from gwproto0 import (
     GtDispatchBoolean,
     GtDispatchBoolean_Maker,
 )
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local_maker import (
+from gwproto0 import (
     GtDispatchBooleanLocal,
     GtDispatchBooleanLocal_Maker,
 )
-from schema.gt.gt_driver_booleanactuator_cmd.gt_driver_booleanactuator_cmd_maker import (
+from gwproto0 import (
     GtDriverBooleanactuatorCmd,
     GtDriverBooleanactuatorCmd_Maker,
 )
-from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status_maker import (
+from gwproto0 import (
     GtShBooleanactuatorCmdStatus,
     GtShBooleanactuatorCmdStatus_Maker,
 )
-from schema.gt.gt_sh_cli_atn_cmd.gt_sh_cli_atn_cmd_maker import GtShCliAtnCmd, GtShCliAtnCmd_Maker
-from schema.gt.snapshot_spaceheat.snapshot_spaceheat_maker import (
+from gwproto0 import GtShCliAtnCmd, GtShCliAtnCmd_Maker
+from gwproto0 import (
     SnapshotSpaceheat,
     SnapshotSpaceheat_Maker,
 )
 
-from schema.gt.gt_sh_multipurpose_telemetry_status.gt_sh_multipurpose_telemetry_status_maker import (
+from gwproto0 import (
     GtShMultipurposeTelemetryStatus,
     GtShMultipurposeTelemetryStatus_Maker,
 )
-from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status_maker import (
+from gwproto0 import (
     GtShSimpleTelemetryStatus,
     GtShSimpleTelemetryStatus_Maker,
 )
-from schema.gt.gt_sh_status.gt_sh_status_maker import GtShStatus, GtShStatus_Maker
+from gwproto0 import GtShStatus, GtShStatus_Maker
 
-from schema.gt.telemetry_snapshot_spaceheat.telemetry_snapshot_spaceheat_maker import (
+from gwproto0 import (
     TelemetrySnapshotSpaceheat,
     TelemetrySnapshotSpaceheat_Maker,
 )
 
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor_maker import (
+from gwproto0 import (
     GtShTelemetryFromMultipurposeSensor,
     GtShTelemetryFromMultipurposeSensor_Maker,
 )
-from schema.gt.gt_telemetry.gt_telemetry_maker import GtTelemetry, GtTelemetry_Maker
+from gwproto0 import GtTelemetry, GtTelemetry_Maker
 
 from actors.scada_base import ScadaBase
 from actors.utils import QOS, Subscription, responsive_sleep

@@ -30,7 +30,7 @@ from named_tuples.telemetry_tuple import TelemetryTuple
 
 from schema.enums.make_model.make_model_map import MakeModel
 from schema.enums.role.role_map import Role
-from schema.enums.telemetry_name.telemetry_name_map import TelemetryName
+from gwproto0.enums.telemetry_name.telemetry_name_map import TelemetryName
 from schema.enums.unit.unit_map import Unit
 from schema.gt.gt_eq_reporting_config.gt_eq_reporting_config_maker import (
     GtEqReportingConfig,
@@ -41,8 +41,8 @@ from schema.gt.gt_powermeter_reporting_config.gt_powermeter_reporting_config_mak
     GtPowermeterReportingConfig_Maker as ReportingConfig_Maker,
 )
 
-from schema.gs.gs_pwr_maker import GsPwr_Maker
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor_maker import (
+from gwproto0 import GsPwr_Maker
+from gwproto0 import (
     GtShTelemetryFromMultipurposeSensor_Maker,
 )
 

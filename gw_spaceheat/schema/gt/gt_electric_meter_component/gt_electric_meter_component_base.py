@@ -1,7 +1,7 @@
 """Base for gt.electric.meter.component.100"""
 import json
 from typing import List, NamedTuple, Optional
-import schema.property_format as property_format
+import gwproto0.property_format as property_format
 
 
 class GtElectricMeterComponentBase(NamedTuple):

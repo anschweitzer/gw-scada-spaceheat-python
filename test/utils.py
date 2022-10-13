@@ -43,18 +43,18 @@ from data_classes.components.temp_sensor_component import (
 )
 from data_classes.hardware_layout import HardwareLayout
 from data_classes.sh_node import ShNode
-from proactor import Message
+from gwproto0 import Message
 from proactor.message import MQTTReceiptPayload, MQTTConnectPayload, MQTTDisconnectPayload, MQTTConnectFailPayload, \
     MQTTSubackPayload
 from schema.gs.gs_dispatch import GsDispatch
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local import (
+from gwproto0 import (
     GtDispatchBooleanLocal,
 )
-from schema.gt.snapshot_spaceheat.snapshot_spaceheat_maker import (
+from gwproto0 import (
     SnapshotSpaceheat,
     SnapshotSpaceheat_Maker,
 )
-from schema.gt.gt_sh_status.gt_sh_status_maker import (
+from gwproto0 import (
     GtShStatus,
     GtShStatus_Maker,
 )

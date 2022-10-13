@@ -1,5 +1,5 @@
 import pytest
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.gs.gs_dispatch_maker import GsDispatch_Maker as Maker
 
 

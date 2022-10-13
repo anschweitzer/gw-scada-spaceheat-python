@@ -11,7 +11,8 @@ from typing import TypeVar, Generic, Any
 from actors2.actor_interface import ActorInterface
 from actors2.scada_interface import ScadaInterface
 from data_classes.sh_node import ShNode
-from proactor import SyncAsyncInteractionThread, Message
+from proactor import SyncAsyncInteractionThread
+from gwproto0 import Message
 from proactor.proactor_interface import Communicator
 
 

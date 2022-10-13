@@ -4,7 +4,7 @@ from typing import Optional
 from data_classes.components.electric_meter_component import ElectricMeterComponent
 
 from schema.gt.gt_electric_meter_component.gt_electric_meter_component import GtElectricMeterComponent
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 
 
 class GtElectricMeterComponent_Maker:

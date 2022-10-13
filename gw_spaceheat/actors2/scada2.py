@@ -28,31 +28,31 @@ from data_classes.hardware_layout import HardwareLayout
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
 from proactor.logger import ProactorLogger
-from proactor.message import MQTTReceiptPayload, Message
+from proactor.message import MQTTReceiptPayload
+from gwproto0 import Message
 from proactor.proactor_implementation import Proactor, MQTTCodec
-from schema.decoders import Decoders
-from schema.decoders_factory import DecoderExtractor, create_message_payload_discriminator
-from schema.gs.gs_pwr import GsPwr
-from schema.gt.gt_dispatch_boolean.gt_dispatch_boolean import GtDispatchBoolean
-from schema.gt.gt_dispatch_boolean.gt_dispatch_boolean_maker import (
+from gwproto0 import Decoders
+from gwproto0 import DecoderExtractor, create_message_payload_discriminator
+from gwproto0 import GsPwr
+from gwproto0 import GtDispatchBoolean
+from gwproto0 import (
     GtDispatchBoolean_Maker,
 )
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local import (
+from gwproto0 import (
     GtDispatchBooleanLocal,
 )
-from schema.gt.gt_driver_booleanactuator_cmd.gt_driver_booleanactuator_cmd import (
+from gwproto0 import (
     GtDriverBooleanactuatorCmd,
 )
-from schema.gt.gt_driver_booleanactuator_cmd.gt_driver_booleanactuator_cmd_maker import GtDriverBooleanactuatorCmd_Maker
-from schema.gt.gt_sh_cli_atn_cmd.gt_sh_cli_atn_cmd import GtShCliAtnCmd
-from schema.gt.gt_sh_cli_atn_cmd.gt_sh_cli_atn_cmd_maker import GtShCliAtnCmd_Maker
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor import (
+from gwproto0 import GtDriverBooleanactuatorCmd_Maker
+from gwproto0 import GtShCliAtnCmd
+from gwproto0 import GtShCliAtnCmd_Maker
+from gwproto0 import (
     GtShTelemetryFromMultipurposeSensor,
 )
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor_maker import \
-    GtShTelemetryFromMultipurposeSensor_Maker
-from schema.gt.gt_telemetry.gt_telemetry import GtTelemetry
-from schema.gt.gt_telemetry.gt_telemetry_maker import GtTelemetry_Maker
+from gwproto0 import GtShTelemetryFromMultipurposeSensor_Maker
+from gwproto0 import GtTelemetry
+from gwproto0 import GtTelemetry_Maker
 
 from actors.utils import gw_mqtt_topic_encode, gw_mqtt_topic_decode
 
@@ -102,6 +102,7 @@ class ScadaMQTTCodec(MQTTCodec, ABC):
 ScadaMessageDecoder = create_message_payload_discriminator(
     "ScadaMessageDecoder",
     [
+        "gwproto0",
         "proactor.message",
         "actors2.message"
     ]

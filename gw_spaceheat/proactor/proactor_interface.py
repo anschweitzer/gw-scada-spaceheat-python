@@ -5,7 +5,7 @@ create forward references for implementation hiearchies
 import asyncio
 from abc import ABC, abstractmethod
 
-from proactor.message import Message
+from gwproto0 import Message
 
 
 class CommunicatorInterface(ABC):

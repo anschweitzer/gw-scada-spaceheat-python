@@ -1,6 +1,6 @@
 """gt.temp.sensor.component.100 type"""
 
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.gt.gt_temp_sensor_component.gt_temp_sensor_component_base import (
     GtTempSensorComponentBase,
 )

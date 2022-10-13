@@ -1,6 +1,6 @@
 """resistive.heater.cac.gt.100 type"""
 
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.gt.resistive_heater_cac_gt.resistive_heater_cac_gt_base import (
     ResistiveHeaterCacGtBase,
 )

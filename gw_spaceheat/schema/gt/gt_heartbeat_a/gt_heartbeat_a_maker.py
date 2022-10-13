@@ -2,7 +2,7 @@
 import json
 
 from schema.gt.gt_heartbeat_a.gt_heartbeat_a import GtHeartbeatA
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 
 
 class GtHeartbeatA_Maker:

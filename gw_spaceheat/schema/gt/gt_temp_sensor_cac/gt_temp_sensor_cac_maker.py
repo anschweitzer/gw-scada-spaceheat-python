@@ -4,8 +4,8 @@ from typing import Optional
 from data_classes.cacs.temp_sensor_cac import TempSensorCac
 
 from schema.gt.gt_temp_sensor_cac.gt_temp_sensor_cac import GtTempSensorCac
-from schema.errors import MpSchemaError
-from schema.enums.telemetry_name.telemetry_name_map import (
+from gwproto0 import MpSchemaError
+from gwproto0.enums.telemetry_name.telemetry_name_map import (
     TelemetryName,
     TelemetryNameMap,
 )

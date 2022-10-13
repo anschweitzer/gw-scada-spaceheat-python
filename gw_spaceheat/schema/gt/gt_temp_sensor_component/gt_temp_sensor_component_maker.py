@@ -4,7 +4,7 @@ from typing import Optional
 from data_classes.components.temp_sensor_component import TempSensorComponent
 
 from schema.gt.gt_temp_sensor_component.gt_temp_sensor_component import GtTempSensorComponent
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 
 
 class GtTempSensorComponent_Maker:

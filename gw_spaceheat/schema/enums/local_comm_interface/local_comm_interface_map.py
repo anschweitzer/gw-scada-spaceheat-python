@@ -1,5 +1,5 @@
 from typing import Dict
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.enums.local_comm_interface.local_comm_interface_100 import (
     LocalCommInterface,
     LocalCommInterface100GtEnum,

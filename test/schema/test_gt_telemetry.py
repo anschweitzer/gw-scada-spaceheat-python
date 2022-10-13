@@ -3,8 +3,8 @@ import json
 
 import pytest
 
-from schema.errors import MpSchemaError
-from schema.gt.gt_telemetry.gt_telemetry_maker import (
+from gwproto0 import MpSchemaError
+from gwproto0 import (
     GtTelemetry_Maker as Maker,
 )
 

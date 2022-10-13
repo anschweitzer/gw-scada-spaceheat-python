@@ -3,8 +3,8 @@ import json
 
 import pytest
 
-from schema.errors import MpSchemaError
-from schema.gt.gt_sh_cli_atn_cmd.gt_sh_cli_atn_cmd_maker import (
+from gwproto0 import MpSchemaError
+from gwproto0 import (
     GtShCliAtnCmd_Maker as Maker,
 )
 

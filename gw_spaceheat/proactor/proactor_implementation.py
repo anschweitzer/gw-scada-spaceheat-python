@@ -9,8 +9,8 @@ from paho.mqtt.client import MQTTMessageInfo
 
 import config
 from proactor.logger import ProactorLogger
+from gwproto0 import Message
 from proactor.message import (
-    Message,
     MessageType,
     MQTTConnectPayload,
     MQTTReceiptPayload,

@@ -3,8 +3,8 @@ import json
 from typing import List
 
 from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status import GtShSimpleTelemetryStatus
-from schema.errors import MpSchemaError
-from schema.enums.telemetry_name.telemetry_name_map import (
+from gwproto0 import MpSchemaError
+from gwproto0.enums.telemetry_name.telemetry_name_map import (
     TelemetryName,
     TelemetryNameMap,
 )

@@ -1,5 +1,5 @@
 from typing import Dict
-from schema.errors import MpSchemaError
+from gwproto0 import MpSchemaError
 from schema.enums.actor_class.sh_actor_class_100 import (
     ActorClass,
     ShActorClass100GtEnum,
