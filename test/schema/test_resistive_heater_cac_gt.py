@@ -4,7 +4,7 @@ import json
 import pytest
 
 from schema.errors import MpSchemaError
-from schema.gt.resistive_heater_cac_gt.resistive_heater_cac_gt_maker import (
+from schema.gt.cacs import (
     ResistiveHeaterCacGt_Maker as Maker,
 )
 

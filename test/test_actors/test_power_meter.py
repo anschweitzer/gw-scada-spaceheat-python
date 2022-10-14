@@ -19,7 +19,7 @@ from drivers.power_meter.unknown_power_meter_driver import UnknownPowerMeterDriv
 
 from schema.enums import MakeModel
 from schema.enums import TelemetryName
-from schema.gt.gt_electric_meter_cac.gt_electric_meter_cac_maker import GtElectricMeterCac_Maker
+from schema.gt.cacs import GtElectricMeterCac_Maker
 
 from schema.gt.gt_electric_meter_component.gt_electric_meter_component_maker import (
     GtElectricMeterComponent_Maker,

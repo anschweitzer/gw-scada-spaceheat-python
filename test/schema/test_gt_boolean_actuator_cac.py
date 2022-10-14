@@ -4,7 +4,7 @@ import json
 import pytest
 
 from schema.errors import MpSchemaError
-from schema.gt.gt_boolean_actuator_cac.gt_boolean_actuator_cac_maker import (
+from schema.gt.cacs import (
     GtBooleanActuatorCac_Maker as Maker,
 )
 

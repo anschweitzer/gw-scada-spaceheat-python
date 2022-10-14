@@ -4,7 +4,7 @@ import json
 import pytest
 
 from schema.errors import MpSchemaError
-from schema.gt.gt_temp_sensor_cac.gt_temp_sensor_cac_maker import (
+from schema.gt.cacs import (
     GtTempSensorCac_Maker as Maker,
 )
 
