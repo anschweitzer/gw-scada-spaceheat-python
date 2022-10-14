@@ -13,8 +13,8 @@ from proactor.logger import MessageSummary
 from data_classes.hardware_layout import HardwareLayout
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
-from schema import GsDispatch
-from schema import GsPwr
+from schema.messages import GsDispatch
+from schema.messages import GsPwr
 from schema.schema_switcher import TypeMakerByAliasDict
 
 

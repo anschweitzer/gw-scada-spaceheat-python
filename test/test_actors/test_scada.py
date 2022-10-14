@@ -11,25 +11,25 @@ from config import ScadaSettings
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
 from schema.enums import TelemetryName
-from schema import GsPwr_Maker
-from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status import (
+from schema.messages import GsPwr_Maker
+from schema.messages import (
     GtShBooleanactuatorCmdStatus,
 )
 
-from schema.gt.snapshot_spaceheat.snapshot_spaceheat import SnapshotSpaceheat
+from schema.messages import SnapshotSpaceheat
 
-from schema.gt.gt_sh_multipurpose_telemetry_status.gt_sh_multipurpose_telemetry_status import (
+from schema.messages import (
     GtShMultipurposeTelemetryStatus,
 )
-from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status import (
+from schema.messages import (
     GtShSimpleTelemetryStatus,
 )
-from schema.gt.gt_sh_status.gt_sh_status import GtShStatus
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor_maker import (
+from schema.messages import GtShStatus
+from schema.messages import (
     GtShTelemetryFromMultipurposeSensor_Maker,
 )
-from schema.gt.gt_telemetry.gt_telemetry_maker import GtTelemetry_Maker
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local_maker import (
+from schema.messages import GtTelemetry_Maker
+from schema.messages import (
     GtDispatchBooleanLocal_Maker,
 )
 from test.fragment_runner import FragmentRunner, ProtocolFragment

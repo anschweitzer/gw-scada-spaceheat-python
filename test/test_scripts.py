@@ -8,10 +8,10 @@ import load_house
 from command_line_utils import run_nodes_main, run_async_actors_main
 from config import ScadaSettings
 from schema.enums import Role
-from schema.gt.gt_sh_status.gt_sh_status import GtShStatus
-from schema.gt.gt_sh_status.gt_sh_status_maker import GtShStatus_Maker
-from schema.gt.snapshot_spaceheat.snapshot_spaceheat import SnapshotSpaceheat
-from schema.gt.snapshot_spaceheat.snapshot_spaceheat_maker import SnapshotSpaceheat_Maker
+from schema.messages import GtShStatus
+from schema.messages import GtShStatus_Maker
+from schema.messages import SnapshotSpaceheat
+from schema.messages import SnapshotSpaceheat_Maker
 from test.conftest import TEST_DOTENV_PATH_VAR, TEST_DOTENV_PATH
 from test.fragment_runner import ProtocolFragment, AsyncFragmentRunner
 from test.utils import await_for

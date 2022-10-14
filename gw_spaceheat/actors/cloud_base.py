@@ -16,10 +16,10 @@ from proactor.logger import MessageSummary
 from data_classes.hardware_layout import HardwareLayout
 from data_classes.sh_node import ShNode
 from schema.decoders_factory import DecoderExtractor, OneDecoderExtractor, PydanticExtractor
-from schema import GsDispatch
-from schema import GsPwr, GsPwr_Maker
-from schema.gt.gt_sh_status.gt_sh_status_maker import GtShStatus_Maker
-from schema.gt.snapshot_spaceheat.snapshot_spaceheat_maker import SnapshotSpaceheat_Maker
+from schema.messages import GsDispatch
+from schema.messages import GsPwr, GsPwr_Maker
+from schema.messages import GtShStatus_Maker
+from schema.messages import SnapshotSpaceheat_Maker
 from schema.schema_switcher import TypeMakerByAliasDict
 
 

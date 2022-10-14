@@ -4,7 +4,7 @@ import json
 import pytest
 
 from schema.errors import MpSchemaError
-from schema.gt.gt_dispatch_boolean.gt_dispatch_boolean_maker import (
+from schema.messages import (
     GtDispatchBoolean_Maker as Maker,
 )
 

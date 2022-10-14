@@ -7,11 +7,11 @@ from actors.simple_sensor import SimpleSensor
 from config import ScadaSettings
 from schema import property_format
 from schema.enums import TelemetryName
-from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status import (
+from schema.messages import (
     GtShSimpleTelemetryStatus,
 )
-from schema.gt.gt_sh_status.gt_sh_status import GtShStatus
-from schema.gt.gt_sh_status.gt_sh_status_maker import GtShStatus_Maker
+from schema.messages import GtShStatus
+from schema.messages import GtShStatus_Maker
 from test.utils import wait_for, ScadaRecorder, EarRecorder
 from actors.utils import gw_mqtt_topic_encode
 

@@ -9,8 +9,8 @@ from actors.actor_base import ActorBase
 from actors.utils import QOS, gw_mqtt_topic_decode, gw_mqtt_topic_encode
 from proactor.logger import MessageSummary
 from data_classes.hardware_layout import HardwareLayout
-from schema import GsDispatch
-from schema import GsPwr
+from schema.messages import GsDispatch
+from schema.messages import GsPwr
 from schema.schema_switcher import TypeMakerByAliasDict
 
 

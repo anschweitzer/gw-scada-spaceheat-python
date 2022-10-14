@@ -4,7 +4,7 @@ import json
 import pytest
 
 from schema.errors import MpSchemaError
-from schema.gt.gt_telemetry.gt_telemetry_maker import (
+from schema.messages import (
     GtTelemetry_Maker as Maker,
 )
 

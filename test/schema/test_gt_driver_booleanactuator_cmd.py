@@ -4,7 +4,7 @@ import json
 import pytest
 
 from schema.errors import MpSchemaError
-from schema.gt.gt_driver_booleanactuator_cmd.gt_driver_booleanactuator_cmd_maker import (
+from schema.messages import (
     GtDriverBooleanactuatorCmd_Maker as Maker,
 )
 

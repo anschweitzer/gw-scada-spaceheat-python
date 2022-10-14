@@ -12,17 +12,17 @@ from config import ScadaSettings
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
 from schema.enums import TelemetryName
-from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status import (
+from schema.messages import (
     GtShBooleanactuatorCmdStatus,
 )
-from schema.gt.gt_sh_status.gt_sh_status import GtShStatus
-from schema.gt.gt_sh_status.gt_sh_status_maker import GtShStatus_Maker
-from schema.gt.snapshot_spaceheat.snapshot_spaceheat_maker import SnapshotSpaceheat, SnapshotSpaceheat_Maker
+from schema.messages import GtShStatus
+from schema.messages import GtShStatus_Maker
+from schema.messages import SnapshotSpaceheat, SnapshotSpaceheat_Maker
 
-from schema.gt.gt_sh_multipurpose_telemetry_status.gt_sh_multipurpose_telemetry_status import (
+from schema.messages import (
     GtShMultipurposeTelemetryStatus,
 )
-from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status import (
+from schema.messages import (
     GtShSimpleTelemetryStatus,
 )
 from test.fragment_runner import ProtocolFragment, AsyncFragmentRunner, Actors

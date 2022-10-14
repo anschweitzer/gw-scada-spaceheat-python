@@ -15,7 +15,7 @@ from logging_config import LoggingSettings, LoggerLevels
 from logging_setup import setup_logging
 from named_tuples.telemetry_tuple import TelemetryTuple
 from schema.enums import TelemetryName
-from schema import GsPwr_Maker
+from schema.messages import GsPwr_Maker
 from test.fragment_runner import ProtocolFragment, AsyncFragmentRunner
 from test.utils import await_for
 

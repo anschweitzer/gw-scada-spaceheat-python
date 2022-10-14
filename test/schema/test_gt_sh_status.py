@@ -4,7 +4,7 @@ import json
 import pytest
 
 from schema.errors import MpSchemaError
-from schema.gt.gt_sh_status.gt_sh_status_maker import (
+from schema.messages import (
     GtShStatus_Maker as Maker,
 )
 

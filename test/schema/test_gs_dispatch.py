@@ -1,6 +1,6 @@
 import pytest
 from schema.errors import MpSchemaError
-from schema import GsDispatch_Maker as Maker
+from schema.messages import GsDispatch_Maker as Maker
 
 
 def test_gs_dispatch():

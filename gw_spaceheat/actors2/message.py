@@ -14,28 +14,28 @@ from pydantic import BaseModel, validator
 from logging_config import LoggerLevels
 from proactor.message import Message, Header, as_enum
 from schema.enums import TelemetryName
-from schema import GsPwr
-from schema import GsPwr_Maker
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local import (
+from schema.messages import GsPwr
+from schema.messages import GsPwr_Maker
+from schema.messages import (
     GtDispatchBooleanLocal,
 )
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local_maker import (
+from schema.messages import (
     GtDispatchBooleanLocal_Maker,
 )
-from schema.gt.gt_driver_booleanactuator_cmd.gt_driver_booleanactuator_cmd import (
+from schema.messages import (
     GtDriverBooleanactuatorCmd,
 )
-from schema.gt.gt_driver_booleanactuator_cmd.gt_driver_booleanactuator_cmd_maker import (
+from schema.messages import (
     GtDriverBooleanactuatorCmd_Maker,
 )
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor import (
+from schema.messages import (
     GtShTelemetryFromMultipurposeSensor,
 )
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor_maker import (
+from schema.messages import (
     GtShTelemetryFromMultipurposeSensor_Maker,
 )
-from schema.gt.gt_telemetry.gt_telemetry import GtTelemetry
-from schema.gt.gt_telemetry.gt_telemetry_maker import GtTelemetry_Maker
+from schema.messages import GtTelemetry
+from schema.messages import GtTelemetry_Maker
 
 
 class GtTelemetryMessage(Message[GtTelemetry]):

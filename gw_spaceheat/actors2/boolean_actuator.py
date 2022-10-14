@@ -9,7 +9,7 @@ from actors2.simple_sensor import SimpleSensor, SimpleSensorDriverThread
 from actors2.scada_interface import ScadaInterface
 from proactor.message import Message
 from proactor.sync_thread import SyncAsyncInteractionThread
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local import (
+from schema.messages import (
     GtDispatchBooleanLocal,
 )
 

@@ -41,8 +41,8 @@ from schema.gt.gt_powermeter_reporting_config.gt_powermeter_reporting_config_mak
     GtPowermeterReportingConfig_Maker as ReportingConfig_Maker,
 )
 
-from schema import GsPwr_Maker
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor_maker import (
+from schema.gs.gs_pwr_maker import GsPwr_Maker
+from schema.messages import (
     GtShTelemetryFromMultipurposeSensor_Maker,
 )
 

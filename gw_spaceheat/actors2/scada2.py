@@ -30,29 +30,28 @@ from named_tuples.telemetry_tuple import TelemetryTuple
 from proactor.logger import ProactorLogger
 from proactor.message import MQTTReceiptPayload, Message
 from proactor.proactor_implementation import Proactor, MQTTCodec
-from schema.decoders import Decoders
-from schema.decoders_factory import DecoderExtractor, create_message_payload_discriminator
-from schema import GsPwr
-from schema.gt.gt_dispatch_boolean.gt_dispatch_boolean import GtDispatchBoolean
-from schema.gt.gt_dispatch_boolean.gt_dispatch_boolean_maker import (
+from schema import Decoders
+from schema import DecoderExtractor, create_message_payload_discriminator
+from schema.messages import GsPwr
+from schema.messages import GtDispatchBoolean
+from schema.messages import (
     GtDispatchBoolean_Maker,
 )
-from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local import (
+from schema.messages import (
     GtDispatchBooleanLocal,
 )
-from schema.gt.gt_driver_booleanactuator_cmd.gt_driver_booleanactuator_cmd import (
+from schema.messages import (
     GtDriverBooleanactuatorCmd,
 )
-from schema.gt.gt_driver_booleanactuator_cmd.gt_driver_booleanactuator_cmd_maker import GtDriverBooleanactuatorCmd_Maker
-from schema.gt.gt_sh_cli_atn_cmd.gt_sh_cli_atn_cmd import GtShCliAtnCmd
-from schema.gt.gt_sh_cli_atn_cmd.gt_sh_cli_atn_cmd_maker import GtShCliAtnCmd_Maker
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor import (
+from schema.messages import GtDriverBooleanactuatorCmd_Maker
+from schema.messages import GtShCliAtnCmd
+from schema.messages import GtShCliAtnCmd_Maker
+from schema.messages import (
     GtShTelemetryFromMultipurposeSensor,
 )
-from schema.gt.gt_sh_telemetry_from_multipurpose_sensor.gt_sh_telemetry_from_multipurpose_sensor_maker import \
-    GtShTelemetryFromMultipurposeSensor_Maker
-from schema.gt.gt_telemetry.gt_telemetry import GtTelemetry
-from schema.gt.gt_telemetry.gt_telemetry_maker import GtTelemetry_Maker
+from schema.messages import GtShTelemetryFromMultipurposeSensor_Maker
+from schema.messages import GtTelemetry
+from schema.messages import GtTelemetry_Maker
 
 from actors.utils import gw_mqtt_topic_encode, gw_mqtt_topic_decode
 
