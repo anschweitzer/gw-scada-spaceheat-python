@@ -2,11 +2,8 @@
 import json
 
 import pytest
-
 from schema.errors import MpSchemaError
-from schema.gt.cacs import (
-    ResistiveHeaterCacGt_Maker as Maker,
-)
+from schema.gt.cacs import ResistiveHeaterCacGt_Maker as Maker
 
 
 def test_resistive_heater_cac_gt():

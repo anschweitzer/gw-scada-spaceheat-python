@@ -1,39 +1,28 @@
 """Proactor-internal messages wrappers of Scada message structures."""
 
 import time
-from typing import (
-    List,
-    Optional,
-    Literal,
-    cast
-)
 from enum import Enum
+from typing import List
+from typing import Literal
+from typing import Optional
+from typing import cast
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
+from pydantic import validator
 
 from logging_config import LoggerLevels
-from proactor.message import Message, Header, as_enum
+from proactor.message import Header
+from proactor.message import Message
+from proactor.message import as_enum
 from schema.enums import TelemetryName
 from schema.messages import GsPwr
 from schema.messages import GsPwr_Maker
-from schema.messages import (
-    GtDispatchBooleanLocal,
-)
-from schema.messages import (
-    GtDispatchBooleanLocal_Maker,
-)
-from schema.messages import (
-    GtDriverBooleanactuatorCmd,
-)
-from schema.messages import (
-    GtDriverBooleanactuatorCmd_Maker,
-)
-from schema.messages import (
-    GtShTelemetryFromMultipurposeSensor,
-)
-from schema.messages import (
-    GtShTelemetryFromMultipurposeSensor_Maker,
-)
+from schema.messages import GtDispatchBooleanLocal
+from schema.messages import GtDispatchBooleanLocal_Maker
+from schema.messages import GtDriverBooleanactuatorCmd
+from schema.messages import GtDriverBooleanactuatorCmd_Maker
+from schema.messages import GtShTelemetryFromMultipurposeSensor
+from schema.messages import GtShTelemetryFromMultipurposeSensor_Maker
 from schema.messages import GtTelemetry
 from schema.messages import GtTelemetry_Maker
 

@@ -2,11 +2,8 @@
 import json
 
 import pytest
-
 from schema.errors import MpSchemaError
-from schema.gt.components import (
-    GtTempSensorComponent_Maker as Maker,
-)
+from schema.gt.components import GtTempSensorComponent_Maker as Maker
 
 
 def test_gt_temp_sensor_component():

@@ -1,39 +1,28 @@
 """Test Scada actor"""
 import time
 import typing
-
-import pytest
+from test.fragment_runner import FragmentRunner
+from test.fragment_runner import ProtocolFragment
+from test.utils import wait_for
 
 import load_house
+import pytest
 from actors.actor_base import ActorBase
-from actors.scada import Scada, ScadaCmdDiagnostic
+from actors.scada import Scada
+from actors.scada import ScadaCmdDiagnostic
 from config import ScadaSettings
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
 from schema.enums import TelemetryName
 from schema.messages import GsPwr_Maker
-from schema.messages import (
-    GtShBooleanactuatorCmdStatus,
-)
-
-from schema.messages import SnapshotSpaceheat
-
-from schema.messages import (
-    GtShMultipurposeTelemetryStatus,
-)
-from schema.messages import (
-    GtShSimpleTelemetryStatus,
-)
+from schema.messages import GtDispatchBooleanLocal_Maker
+from schema.messages import GtShBooleanactuatorCmdStatus
+from schema.messages import GtShMultipurposeTelemetryStatus
+from schema.messages import GtShSimpleTelemetryStatus
 from schema.messages import GtShStatus
-from schema.messages import (
-    GtShTelemetryFromMultipurposeSensor_Maker,
-)
+from schema.messages import GtShTelemetryFromMultipurposeSensor_Maker
 from schema.messages import GtTelemetry_Maker
-from schema.messages import (
-    GtDispatchBooleanLocal_Maker,
-)
-from test.fragment_runner import FragmentRunner, ProtocolFragment
-from test.utils import wait_for
+from schema.messages import SnapshotSpaceheat
 
 
 def test_scada_small():

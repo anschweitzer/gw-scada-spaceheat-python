@@ -5,10 +5,13 @@ import asyncio
 import time
 import typing
 from collections import OrderedDict
-from typing import Optional, Dict, List
+from typing import Dict
+from typing import List
+from typing import Optional
 
 from actors2.actor import SyncThreadActor
-from actors2.message import GsPwrMessage, MultipurposeSensorTelemetryMessage
+from actors2.message import GsPwrMessage
+from actors2.message import MultipurposeSensorTelemetryMessage
 from actors2.scada_interface import ScadaInterface
 from config import ScadaSettings
 from data_classes.components.electric_meter_component import ElectricMeterComponent
@@ -27,7 +30,8 @@ from drivers.power_meter.schneiderelectric_iem3455__power_meter_driver import (
 )
 from drivers.power_meter.unknown_power_meter_driver import UnknownPowerMeterDriver
 from named_tuples.telemetry_tuple import TelemetryTuple
-from proactor.sync_thread import SyncAsyncInteractionThread, SyncAsyncQueueWriter
+from proactor.sync_thread import SyncAsyncInteractionThread
+from proactor.sync_thread import SyncAsyncQueueWriter
 from schema.enums import MakeModel
 from schema.enums import Role
 from schema.enums import TelemetryName
@@ -38,6 +42,8 @@ from schema.gt.gt_eq_reporting_config.gt_eq_reporting_config_maker import (
 )
 from schema.gt.gt_powermeter_reporting_config.gt_powermeter_reporting_config_maker import (
     GtPowermeterReportingConfig as ReportingConfig,
+)
+from schema.gt.gt_powermeter_reporting_config.gt_powermeter_reporting_config_maker import (
     GtPowermeterReportingConfig_Maker,
 )
 

@@ -1,19 +1,19 @@
 """Test cloud_ear module"""
 
 import time
+from test.utils import EarRecorder
+from test.utils import ScadaRecorder
+from test.utils import wait_for
 
 import load_house
 from actors.simple_sensor import SimpleSensor
+from actors.utils import gw_mqtt_topic_encode
 from config import ScadaSettings
 from schema import property_format
 from schema.enums import TelemetryName
-from schema.messages import (
-    GtShSimpleTelemetryStatus,
-)
+from schema.messages import GtShSimpleTelemetryStatus
 from schema.messages import GtShStatus
 from schema.messages import GtShStatus_Maker
-from test.utils import wait_for, ScadaRecorder, EarRecorder
-from actors.utils import gw_mqtt_topic_encode
 
 
 def test_scada_ear_connection():

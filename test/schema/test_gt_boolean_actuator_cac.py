@@ -2,11 +2,8 @@
 import json
 
 import pytest
-
 from schema.errors import MpSchemaError
-from schema.gt.cacs import (
-    GtBooleanActuatorCac_Maker as Maker,
-)
+from schema.gt.cacs import GtBooleanActuatorCac_Maker as Maker
 
 
 def test_gt_boolean_actuator_cac():

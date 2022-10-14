@@ -1,11 +1,9 @@
 """Test HomeAlone actor"""
 
+import load_house
 import pytest
 from actors.home_alone import HomeAlone
-
-import load_house
 from config import ScadaSettings
-
 from schema.messages import GtShStatus_Maker
 
 

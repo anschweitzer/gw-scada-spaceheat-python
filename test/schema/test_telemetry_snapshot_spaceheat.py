@@ -2,11 +2,8 @@
 import json
 
 import pytest
-
 from schema.errors import MpSchemaError
-from schema.messages import (
-    TelemetrySnapshotSpaceheat_Maker as Maker,
-)
+from schema.messages import TelemetrySnapshotSpaceheat_Maker as Maker
 
 
 def test_telemetry_snapshot_spaceheat():

@@ -2,11 +2,8 @@
 import json
 
 import pytest
-
 from schema.errors import MpSchemaError
-from schema.messages import (
-    GtDispatchBoolean_Maker as Maker,
-)
+from schema.messages import GtDispatchBoolean_Maker as Maker
 
 
 def test_gt_dispatch_boolean():

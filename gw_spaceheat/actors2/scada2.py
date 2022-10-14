@@ -3,57 +3,50 @@
 import asyncio
 import time
 import typing
-from typing import (
-    Any,
-    List,
-    Optional,
-)
-from abc import abstractmethod, ABC
+from abc import ABC
+from abc import abstractmethod
+from typing import Any
+from typing import List
+from typing import Optional
 
 from paho.mqtt.client import MQTTMessageInfo
 
-from actors.scada import ScadaCmdDiagnostic
-from actors.utils import QOS
 from actors2.actor_interface import ActorInterface
-from actors2.message import (
-    GtDispatchBooleanLocalMessage,
-    ScadaDBG,
-    ScadaDBGCommands,
-)
+from actors2.message import GtDispatchBooleanLocalMessage
+from actors2.message import ScadaDBG
+from actors2.message import ScadaDBGCommands
 from actors2.scada_data import ScadaData
 from actors2.scada_interface import ScadaInterface
+from actors.scada import ScadaCmdDiagnostic
+from actors.utils import QOS
+from actors.utils import gw_mqtt_topic_decode
+from actors.utils import gw_mqtt_topic_encode
 from config import ScadaSettings
 from data_classes.components.boolean_actuator_component import BooleanActuatorComponent
 from data_classes.hardware_layout import HardwareLayout
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
 from proactor.logger import ProactorLogger
-from proactor.message import MQTTReceiptPayload, Message
-from proactor.proactor_implementation import Proactor, MQTTCodec
+from proactor.message import Message
+from proactor.message import MQTTReceiptPayload
+from proactor.proactor_implementation import MQTTCodec
+from proactor.proactor_implementation import Proactor
+from schema import DecoderExtractor
 from schema import Decoders
-from schema import DecoderExtractor, create_message_payload_discriminator
+from schema import create_message_payload_discriminator
 from schema.messages import GsPwr
 from schema.messages import GtDispatchBoolean
-from schema.messages import (
-    GtDispatchBoolean_Maker,
-)
-from schema.messages import (
-    GtDispatchBooleanLocal,
-)
-from schema.messages import (
-    GtDriverBooleanactuatorCmd,
-)
+from schema.messages import GtDispatchBoolean_Maker
+from schema.messages import GtDispatchBooleanLocal
+from schema.messages import GtDriverBooleanactuatorCmd
 from schema.messages import GtDriverBooleanactuatorCmd_Maker
 from schema.messages import GtShCliAtnCmd
 from schema.messages import GtShCliAtnCmd_Maker
-from schema.messages import (
-    GtShTelemetryFromMultipurposeSensor,
-)
+from schema.messages import GtShTelemetryFromMultipurposeSensor
 from schema.messages import GtShTelemetryFromMultipurposeSensor_Maker
 from schema.messages import GtTelemetry
 from schema.messages import GtTelemetry_Maker
 
-from actors.utils import gw_mqtt_topic_encode, gw_mqtt_topic_decode
 
 class ScadaMQTTCodec(MQTTCodec, ABC):
     ENCODING = "utf-8"
