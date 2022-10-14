@@ -21,7 +21,7 @@ from schema.enums import MakeModel
 from schema.enums import TelemetryName
 from schema.gt.cacs import GtElectricMeterCac_Maker
 
-from schema.gt.gt_electric_meter_component.gt_electric_meter_component_maker import (
+from schema.gt.components import (
     GtElectricMeterComponent_Maker,
 )
 

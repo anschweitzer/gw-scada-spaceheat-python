@@ -33,27 +33,27 @@ from helpers import camel_to_snake
 from schema.gt.cacs import (
     GtBooleanActuatorCac_Maker,
 )
-from schema.gt.gt_boolean_actuator_component.gt_boolean_actuator_component_maker import (
+from schema.gt.components import (
     GtBooleanActuatorComponent_Maker,
 )
 
 from schema.gt.cacs import ResistiveHeaterCacGt_Maker
-from schema.gt.resistive_heater_component_gt.resistive_heater_component_gt_maker import (
+from schema.gt.components import (
     ResistiveHeaterComponentGt_Maker,
 )
 
 from schema.gt.cacs import GtElectricMeterCac_Maker
-from schema.gt.gt_electric_meter_component.gt_electric_meter_component_maker import (
+from schema.gt.components import (
     GtElectricMeterComponent_Maker,
 )
 from schema.gt.cacs import (
     GtPipeFlowSensorCac_Maker,
 )
-from schema.gt.gt_pipe_flow_sensor_component.gt_pipe_flow_sensor_component_maker import (
+from schema.gt.components import (
     GtPipeFlowSensorComponent_Maker,
 )
 from schema.gt.cacs import GtTempSensorCac_Maker
-from schema.gt.gt_temp_sensor_component.gt_temp_sensor_component_maker import (
+from schema.gt.components import (
     GtTempSensorComponent_Maker,
 )
 from schema.gt.spaceheat_node_gt.spaceheat_node_gt_maker import SpaceheatNodeGt_Maker
