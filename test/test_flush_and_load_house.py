@@ -25,7 +25,7 @@ from data_classes.components.resistive_heater_component import (
 )
 from data_classes.components.temp_sensor_component import TempSensorCac, TempSensorComponent
 from data_classes.sh_node import ShNode
-from schema.enums.role.sh_node_role_110 import Role
+from schema.enums import Role
 from schema.gt.gt_electric_meter_cac.gt_electric_meter_cac_maker import GtElectricMeterCac_Maker
 from schema.gt.gt_electric_meter_component.gt_electric_meter_component_maker import (
     GtElectricMeterComponent_Maker,

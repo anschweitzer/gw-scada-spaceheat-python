@@ -8,7 +8,7 @@ from schema.gt.spaceheat_node_gt.spaceheat_node_gt_maker import (
     SpaceheatNodeGt_Maker as Maker,
 )
 
-from schema.enums.role.role_map import RoleMap, Role
+from schema.enums import RoleMap, Role
 
 
 def test_spaceheat_node_gt():

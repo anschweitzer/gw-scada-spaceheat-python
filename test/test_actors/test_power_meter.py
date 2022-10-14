@@ -17,8 +17,8 @@ from actors.utils import gw_mqtt_topic_encode
 
 from drivers.power_meter.unknown_power_meter_driver import UnknownPowerMeterDriver
 
-from schema.enums.make_model.make_model_map import MakeModel
-from schema.enums.telemetry_name.telemetry_name_map import TelemetryName
+from schema.enums import MakeModel
+from schema.enums import TelemetryName
 from schema.gt.gt_electric_meter_cac.gt_electric_meter_cac_maker import GtElectricMeterCac_Maker
 
 from schema.gt.gt_electric_meter_component.gt_electric_meter_component_maker import (

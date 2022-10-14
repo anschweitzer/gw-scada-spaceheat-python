@@ -28,10 +28,10 @@ from drivers.power_meter.schneiderelectric_iem3455__power_meter_driver import (
 from drivers.power_meter.unknown_power_meter_driver import UnknownPowerMeterDriver
 from named_tuples.telemetry_tuple import TelemetryTuple
 from proactor.sync_thread import SyncAsyncInteractionThread, SyncAsyncQueueWriter
-from schema.enums.make_model.spaceheat_make_model_100 import MakeModel
-from schema.enums.role.sh_node_role_110 import Role
-from schema.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
-from schema.enums.unit.spaceheat_unit_100 import Unit
+from schema.enums import MakeModel
+from schema.enums import Role
+from schema.enums import TelemetryName
+from schema.enums import Unit
 from schema.gt.gt_eq_reporting_config.gt_eq_reporting_config import GtEqReportingConfig
 from schema.gt.gt_eq_reporting_config.gt_eq_reporting_config_maker import (
     GtEqReportingConfig_Maker,

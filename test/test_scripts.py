@@ -7,7 +7,7 @@ import pytest
 import load_house
 from command_line_utils import run_nodes_main, run_async_actors_main
 from config import ScadaSettings
-from schema.enums.role.role_map import Role
+from schema.enums import Role
 from schema.gt.gt_sh_status.gt_sh_status import GtShStatus
 from schema.gt.gt_sh_status.gt_sh_status_maker import GtShStatus_Maker
 from schema.gt.snapshot_spaceheat.snapshot_spaceheat import SnapshotSpaceheat

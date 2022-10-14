@@ -28,10 +28,10 @@ from drivers.power_meter.unknown_power_meter_driver import UnknownPowerMeterDriv
 
 from named_tuples.telemetry_tuple import TelemetryTuple
 
-from schema.enums.make_model.make_model_map import MakeModel
-from schema.enums.role.role_map import Role
-from schema.enums.telemetry_name.telemetry_name_map import TelemetryName
-from schema.enums.unit.unit_map import Unit
+from schema.enums import MakeModel
+from schema.enums import Role
+from schema.enums import TelemetryName
+from schema.enums import Unit
 from schema.gt.gt_eq_reporting_config.gt_eq_reporting_config_maker import (
     GtEqReportingConfig,
     GtEqReportingConfig_Maker,

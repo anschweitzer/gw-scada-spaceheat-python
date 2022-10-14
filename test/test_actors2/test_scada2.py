@@ -11,7 +11,7 @@ from actors2 import Scada2
 from config import ScadaSettings
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
-from schema.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
+from schema.enums import TelemetryName
 from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status import (
     GtShBooleanactuatorCmdStatus,
 )

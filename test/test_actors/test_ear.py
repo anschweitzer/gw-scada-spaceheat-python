@@ -6,7 +6,7 @@ import load_house
 from actors.simple_sensor import SimpleSensor
 from config import ScadaSettings
 from schema import property_format
-from schema.enums.telemetry_name.spaceheat_telemetry_name_100 import TelemetryName
+from schema.enums import TelemetryName
 from schema.gt.gt_sh_simple_telemetry_status.gt_sh_simple_telemetry_status import (
     GtShSimpleTelemetryStatus,
 )
