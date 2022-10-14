@@ -11,7 +11,7 @@ from config import ScadaSettings
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
 from schema.enums import TelemetryName
-from schema.gs.gs_pwr_maker import GsPwr_Maker
+from schema import GsPwr_Maker
 from schema.gt.gt_sh_booleanactuator_cmd_status.gt_sh_booleanactuator_cmd_status import (
     GtShBooleanactuatorCmdStatus,
 )

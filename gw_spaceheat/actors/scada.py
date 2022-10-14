@@ -10,7 +10,7 @@ from data_classes.node_config import NodeConfig
 from data_classes.sh_node import ShNode
 from named_tuples.telemetry_tuple import TelemetryTuple
 from schema.enums import Role
-from schema.gs.gs_pwr_maker import GsPwr, GsPwr_Maker
+from schema import GsPwr, GsPwr_Maker
 from schema.gt.gt_dispatch_boolean.gt_dispatch_boolean_maker import (
     GtDispatchBoolean,
     GtDispatchBoolean_Maker,

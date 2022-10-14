@@ -32,7 +32,7 @@ from proactor.message import MQTTReceiptPayload, Message
 from proactor.proactor_implementation import Proactor, MQTTCodec
 from schema.decoders import Decoders
 from schema.decoders_factory import DecoderExtractor, create_message_payload_discriminator
-from schema.gs.gs_pwr import GsPwr
+from schema import GsPwr
 from schema.gt.gt_dispatch_boolean.gt_dispatch_boolean import GtDispatchBoolean
 from schema.gt.gt_dispatch_boolean.gt_dispatch_boolean_maker import (
     GtDispatchBoolean_Maker,

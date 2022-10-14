@@ -46,7 +46,7 @@ from data_classes.sh_node import ShNode
 from proactor import Message
 from proactor.message import MQTTReceiptPayload, MQTTConnectPayload, MQTTDisconnectPayload, MQTTConnectFailPayload, \
     MQTTSubackPayload
-from schema.gs.gs_dispatch import GsDispatch
+from schema import GsDispatch
 from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local import (
     GtDispatchBooleanLocal,
 )

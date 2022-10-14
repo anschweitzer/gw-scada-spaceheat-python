@@ -14,8 +14,8 @@ from pydantic import BaseModel, validator
 from logging_config import LoggerLevels
 from proactor.message import Message, Header, as_enum
 from schema.enums import TelemetryName
-from schema.gs.gs_pwr import GsPwr
-from schema.gs.gs_pwr_maker import GsPwr_Maker
+from schema import GsPwr
+from schema import GsPwr_Maker
 from schema.gt.gt_dispatch_boolean_local.gt_dispatch_boolean_local import (
     GtDispatchBooleanLocal,
 )

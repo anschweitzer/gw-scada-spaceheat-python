@@ -11,7 +11,7 @@ from data_classes.hardware_layout import HardwareLayout
 from data_classes.sh_node import ShNode
 from proactor import Message
 from schema.enums import Role
-from schema.gs.gs_pwr_maker import GsPwr, GsPwr_Maker
+from schema import GsPwr, GsPwr_Maker
 from schema.gt.gt_dispatch_boolean.gt_dispatch_boolean_maker import GtDispatchBoolean_Maker
 from schema.gt.gt_sh_cli_atn_cmd.gt_sh_cli_atn_cmd_maker import GtShCliAtnCmd_Maker
 from schema.gt.snapshot_spaceheat.snapshot_spaceheat_maker import (
